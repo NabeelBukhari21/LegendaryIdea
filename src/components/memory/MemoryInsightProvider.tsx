@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useBackboard } from "@/components/backboard/BackboardProvider";
 
 interface MemoryInsightData {
     classPattern: {
@@ -22,40 +23,17 @@ interface MemoryInsightContextType {
 
 const MemoryInsightContext = createContext<MemoryInsightContextType | undefined>(undefined);
 
-const fallbackConfusionPatterns = [
-    {
-        id: "cp1",
-        topic: "Chain Rule / Derivatives",
-        occurrences: 3,
-        sessions: ["Session 5 - Mar 6", "Session 3 - Feb 20", "Session 1 - Feb 6"],
-        trend: "increasing",
-        avgEngagementDrop: 38,
-        suggestedAction: "Add prerequisite math refresher before this topic. Consider a 5-min calculus warmup slide.",
-    },
-    {
-        id: "cp2",
-        topic: "Matrix Multiplication in Layers",
-        occurrences: 2,
-        sessions: ["Session 4 - Feb 27", "Session 2 - Feb 13"],
-        trend: "stable",
-        avgEngagementDrop: 22,
-        suggestedAction: "Use visual matrix animations. Students respond well to color-coded row×column demonstrations.",
-    },
-];
-
-const fallbackData: MemoryInsightData = {
+const defaultClassPattern = {
     classPattern: {
-        quote: "Theory-heavy slides without visual support consistently reduce engagement by 30–40% across all sessions",
-        detail: "This class responds strongly to visual, example-based teaching and struggles when content shifts to abstract mathematical notation without adequate scaffolding. This is not a reflection of student capability — it's a content delivery pattern.",
-        actionable: "Lead with visual examples to set context, then introduce formal notation. The class demonstrated they can handle complexity when scaffolded properly (Slide 6: 91% after Slide 4's 45%)."
+        quote: "Waiting for historical session data",
+        detail: "No established patterns detected yet. Complete a session to start tracking engagement across multiple classes.",
+        actionable: "Run a live session to begin building memory patterns."
     },
-    recurringConfusion: fallbackConfusionPatterns.map(p => ({
-        topic: p.topic,
-        suggestedAction: p.suggestedAction
-    }))
+    recurringConfusion: []
 };
 
 export function MemoryInsightProvider({ children }: { children: React.ReactNode }) {
+    const { crossSessionPatterns, isProcessing } = useBackboard();
     const [data, setData] = useState<MemoryInsightData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -63,7 +41,20 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
     useEffect(() => {
         let isMounted = true;
 
+        if (isProcessing) {
+            setIsLoading(true);
+            return;
+        }
+
         async function fetchMemoryInsights() {
+            if (!crossSessionPatterns || crossSessionPatterns.length === 0) {
+                if (isMounted) {
+                    setData(defaultClassPattern);
+                    setIsLoading(false);
+                }
+                return;
+            }
+
             try {
                 const response = await fetch("/api/gemini", {
                     method: "POST",
@@ -71,8 +62,8 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
                     body: JSON.stringify({
                         type: "memory-insight",
                         payload: {
-                            sessionCount: 5,
-                            recurringTopics: fallbackConfusionPatterns.map(p => p.topic)
+                            sessionCount: 5, // Ideally track session count in global state, 5 is a placeholder for demo purposes
+                            recurringTopics: crossSessionPatterns.map((p) => p.topic)
                         }
                     })
                 });
@@ -83,19 +74,18 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
 
                 const result = await response.json();
                 if (isMounted) {
-                    // Make sure the structure matches expectations
                     if (result.classPattern && result.recurringConfusion) {
                         setData(result);
                     } else {
-                        setData(fallbackData);
+                        setData(defaultClassPattern);
                     }
                     setIsLoading(false);
                 }
             } catch (err) {
                 console.error(err);
                 if (isMounted) {
-                    setData(fallbackData);
-                    setError("Using mock data due to API error.");
+                    setData(defaultClassPattern);
+                    setError("Failed to generate AI insights.");
                     setIsLoading(false);
                 }
             }
@@ -106,7 +96,7 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [crossSessionPatterns, isProcessing]);
 
     return (
         <MemoryInsightContext.Provider value={{ data, isLoading, error }}>

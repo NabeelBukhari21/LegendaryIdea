@@ -23,8 +23,7 @@ export default function StudentDashboard() {
                                 Your <span className="gradient-text">Learning Hub</span>
                             </h1>
                             <Badge variant="success" size="md">
-                                <span className="w-2 h-2 rounded-full bg-success animate-pulse-dot inline-block mr-1.5" />
-                                Session Complete
+                                🟢 Real Backboard Data
                             </Badge>
                         </div>
                         <p className="text-muted">

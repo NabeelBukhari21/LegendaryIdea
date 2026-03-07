@@ -23,6 +23,7 @@ export default function RecurringConfusionCard() {
                             <div className="flex items-center gap-2 mt-0.5">
                                 <Badge variant="info" size="sm">Backboard Memory</Badge>
                                 <p className="text-xs text-muted">Topics that cause repeated engagement drops</p>
+                                <Badge variant="success" size="sm">REAL Tool Call</Badge>
                             </div>
                         </div>
                         <Badge variant="danger">{crossSessionPatterns.length} patterns</Badge>

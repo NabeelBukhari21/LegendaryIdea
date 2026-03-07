@@ -23,6 +23,9 @@ export default function TeacherDashboard() {
                             <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
                                 Teacher <span className="gradient-text">Dashboard</span>
                             </h1>
+                            <Badge variant="success" size="md">
+                                🟢 Real Backboard Data
+                            </Badge>
                         </div>
                         <p className="text-muted">
                             Session 5 — Neural Networks Deep Dive · Mar 6, 2026 · 21 students

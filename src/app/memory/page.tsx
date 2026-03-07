@@ -22,8 +22,8 @@ export default function MemoryPage() {
                             <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
                                 Memory <span className="gradient-text">Insights</span>
                             </h1>
-                            <Badge variant="default" size="md">
-                                📋 Backboard-Powered
+                            <Badge variant="success" size="md">
+                                🟢 Real Backboard Data
                             </Badge>
                         </div>
                         <p className="text-muted">

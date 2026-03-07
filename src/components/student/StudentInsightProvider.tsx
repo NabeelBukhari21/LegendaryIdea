@@ -41,16 +41,14 @@ export function StudentInsightProvider({ children }: { children: React.ReactNode
         async function fetchInsight() {
             setIsLoading(true);
             try {
-                const response = await fetch("/api/gemini", {
+                const response = await fetch("/api/backboard/student/insight", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        type: "student-insight",
-                        payload: {
-                            sessionTitle: "Session 5 — Neural Networks Deep Dive",
-                            slideTopic: "Backpropagation Math",
-                            reasons: ["too fast", "unclear explanation"]
-                        }
+                        studentId: "s1",
+                        sessionTitle: "Session 5 — Neural Networks Deep Dive",
+                        slideTopic: "Backpropagation Math",
+                        reasons: ["too fast", "unclear explanation"]
                     })
                 });
 

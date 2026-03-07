@@ -19,7 +19,10 @@ export default function ClassPatternCard() {
                         <div className="w-11 h-11 rounded-xl bg-warning/15 ring-1 ring-warning/20 flex items-center justify-center text-lg">📊</div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-foreground">Class-Wide Pattern</h3>
-                            <p className="text-xs text-muted">Persistent learning pattern across all students</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <p className="text-xs text-muted">Persistent learning pattern across all students</p>
+                                <Badge variant="success" size="sm">REAL Backboard Thread</Badge>
+                            </div>
                         </div>
                         <Badge variant="warning">High Confidence</Badge>
                     </div>

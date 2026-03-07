@@ -53,6 +53,7 @@ export default function LiveDemoPage() {
     const [modelReady, setModelReady] = useState(false);
     const [students, setStudents] = useState<StudentTrack[]>([]);
     const [eventLog, setEventLog] = useState<EventLog[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // PPT upload
     const [customSlides, setCustomSlides] = useState<SlideDefinition[] | null>(null);
@@ -236,13 +237,61 @@ export default function LiveDemoPage() {
         }
     };
 
-    const stopCamera = () => {
+    const stopCamera = async () => {
         isRunningRef.current = false;
         cancelAnimationFrame(animFrameRef.current);
         if (stream) { stream.getTracks().forEach(t => t.stop()); setStream(null); }
+
+        // Capture session state before stopping
+        const finalState = session.state;
         session.stopSession();
         setStudents([]);
         prevStatesRef.current.clear();
+
+        // Submit to Backboard
+        setIsSubmitting(true);
+        try {
+            const slideSummary = finalState.slides.map((s) => {
+                const analytics = finalState.slideAnalytics.get(s.id);
+                return {
+                    id: s.id,
+                    title: s.title,
+                    avgEngagement: analytics?.avgEngagement || 0,
+                    durationSeconds: analytics ? (analytics.eventCount * 0.2) : 0 // approx duration
+                };
+            });
+
+            // Extract unique students that were tracked
+            const uniqueStudents = Array.from(finalState.students.keys());
+            const studentSummaries = uniqueStudents.map(id => {
+                const student = finalState.students.get(id);
+                const avgEngagement = student?.scoreHistory.length
+                    ? student.scoreHistory.reduce((sum, score) => sum + score, 0) / student.scoreHistory.length
+                    : 0;
+                return {
+                    studentId: id,
+                    alias: `Student ${id.split('-')[0].substring(0, 4)}`,
+                    avgEngagement: Math.round(avgEngagement)
+                };
+            });
+
+            await fetch('/api/backboard/ingest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId: `live-${Date.now()}`,
+                    slideSummary,
+                    dipEvents: finalState.dipMoments,
+                    studentSummaries
+                })
+            });
+            console.log("✅ Session ingested into Backboard Memory");
+        } catch (error) {
+            console.error("Failed to ingest session to Backboard", error);
+            alert("Warning: Session data failed to save to Backboard memory.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const classAvg = session.state.classAvgEngagement || 0;
@@ -330,9 +379,13 @@ export default function LiveDemoPage() {
                         <div className="px-4 py-3 bg-black/40 backdrop-blur border-t border-white/5 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 {!stream ? (
-                                    <Button onClick={startCamera} variant="primary" size="sm" disabled={modelLoading}>{modelLoading ? "Loading Model..." : "▶ Start Live Session"}</Button>
+                                    <Button onClick={startCamera} variant="primary" size="sm" disabled={modelLoading || isSubmitting}>
+                                        {modelLoading ? "Loading Model..." : isSubmitting ? "Saving to Backboard..." : "▶ Start Live Session"}
+                                    </Button>
                                 ) : (
-                                    <Button onClick={stopCamera} variant="danger" size="sm">■ End Session</Button>
+                                    <Button onClick={stopCamera} variant="danger" size="sm" disabled={isSubmitting}>
+                                        {isSubmitting ? "Saving to Backboard..." : "■ End Session & Save to Backboard"}
+                                    </Button>
                                 )}
                             </div>
                             <Badge variant="warning" size="sm">🔒 On-device only</Badge>

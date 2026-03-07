@@ -31,10 +31,11 @@ export default function PatternInsightCard() {
                             🔮
                         </div>
                         <div className="flex-1">
-                            <h3 className="text-lg font-bold text-foreground">Your Learning Pattern</h3>
+                            <h3 className="font-bold text-foreground">Your Learning Pattern</h3>
                             <div className="flex items-center gap-2 mt-0.5">
+                                <p className="text-xs text-muted">Analysis of your engagement styles</p>
+                                <Badge variant="success" size="sm">REAL Retrieval</Badge>
                                 <Badge variant="info" size="sm">Backboard Target</Badge>
-                                <p className="text-xs text-muted">Insight from your last 3 sessions</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">

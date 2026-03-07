@@ -91,9 +91,12 @@ export default function RecommendationCard() {
 
                             {/* Backboard Agent Additions */}
                             <div className="mb-4 glass-card p-3 bg-blue-500/5 border-blue-500/10">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Badge variant="info" size="sm">Backboard Target</Badge>
-                                    <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Cross-Session Advisory</p>
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="info" size="sm">Backboard Target</Badge>
+                                        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Cross-Session Advisory</p>
+                                    </div>
+                                    <Badge variant="success" size="sm" className="opacity-80">REAL Backboard Thread</Badge>
                                 </div>
                                 {isProcessing ? (
                                     <div className="flex items-center gap-2">

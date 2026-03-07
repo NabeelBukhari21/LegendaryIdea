@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import TrustBadge from "@/components/solana/TrustBadge";
 
 const navLinks = [
     { href: "/", label: "Home" },
+    { href: "/live-demo", label: "Live Demo" },
     { href: "/teacher", label: "Teacher" },
     { href: "/student", label: "Student" },
     { href: "/session", label: "Session" },
@@ -45,14 +47,17 @@ export default function Navbar() {
                                     key={link.href}
                                     href={link.href}
                                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-                                            ? "text-accent-light bg-accent/10"
-                                            : "text-muted hover:text-foreground hover:bg-white/5"
+                                        ? "text-accent-light bg-accent/10"
+                                        : "text-muted hover:text-foreground hover:bg-white/5"
                                         }`}
                                 >
                                     {link.label}
                                 </Link>
                             );
                         })}
+                        <div className="ml-4 pl-4 border-l border-white/10">
+                            <TrustBadge />
+                        </div>
                     </div>
 
                     {/* Mobile toggle */}
@@ -90,8 +95,8 @@ export default function Navbar() {
                                     key={link.href}
                                     href={link.href}
                                     className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                                            ? "text-accent-light bg-accent/10"
-                                            : "text-muted hover:text-foreground hover:bg-white/5"
+                                        ? "text-accent-light bg-accent/10"
+                                        : "text-muted hover:text-foreground hover:bg-white/5"
                                         }`}
                                     onClick={() => setMobileOpen(false)}
                                 >

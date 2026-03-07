@@ -55,7 +55,8 @@ export function StudentInsightProvider({ children }: { children: React.ReactNode
                 });
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch insight");
+                    if (isMounted) setError(new Error("Failed to fetch insight"));
+                    return;
                 }
 
                 const json = await response.json();
@@ -63,13 +64,13 @@ export function StudentInsightProvider({ children }: { children: React.ReactNode
                     // Check if there was an explicit error from the API 
                     // (e.g., API key not set, which falls back to mock)
                     if (json.error) {
-                        throw new Error(json.error);
+                        setError(new Error(json.error));
+                        return;
                     }
                     setData(json);
                 }
             } catch (err) {
                 if (isMounted) {
-                    console.error("Gemini context error, falling back to mock:", err);
                     setError(err instanceof Error ? err : new Error("Unknown error"));
                 }
             } finally {

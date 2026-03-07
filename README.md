@@ -10,7 +10,7 @@ Built for the **Google Antigravity Hackathon**.
 
 InsightBoard AI closes the feedback loop between student engagement and teaching:
 
-1. **Detect** — Real-time engagement analysis spots when students disengage (Presage)
+1. **Detect** — Real-time engagement analysis via browser-based computer vision (MediaPipe)
 2. **Map** — Dips are mapped to the specific slide and topic causing confusion
 3. **Reflect** — Students are asked why they disengaged (not assumed)
 4. **Recap** — AI generates a personalized simpler explanation + review questions (Gemini)
@@ -24,10 +24,9 @@ InsightBoard AI closes the feedback loop between student engagement and teaching
 
 | Technology | Role | What It Does |
 |---|---|---|
-| **Google Antigravity** | Hackathon Track | Competition framework |
 | **Gemini API** | Content Intelligence | AI recaps, simpler explanations, worked examples, quiz generation, teaching recommendations |
-| **Presage** | Engagement Detection | On-device real-time engagement analysis from camera feeds — raw media never stored |
-| **Backboard** | Session Memory | Persistent cross-session memory — recurring confusion patterns, intervention tracking |
+| **MediaPipe** | Engagement Detection | On-device, privacy-first engagement sensing via Face Landmarker — outputs learning-relevant state labels (focused, confused, distracted, reengaged) without storing raw media |
+| **Backboard** | Multi-Agent Memory & Orchestration | Persistent cross-session intelligence — coordinates Engagement, Content, Reflection, Intervention, Student Support, and Memory sub-agents to identify recurring patterns |
 | **Solana** | Audit Verification | Tamper-evident hash proofs for data access, consent receipts, deletion confirmations (hashes only, no content on-chain) |
 
 ---
@@ -35,14 +34,22 @@ InsightBoard AI closes the feedback loop between student engagement and teaching
 ## Architecture
 
 ```
-Student Device (Presage)
-    ↓ engagement scores (raw media deleted immediately)
-API Server (encrypted, AES-256)
-    ↓ dip detection + student reflections
+Student Browser (MediaPipe Face Landmarker — WASM, runs 100% in-browser)
+    ↓ face signals: head pose, gaze, eye openness, movement, mouth activity
+Session Engine (SessionEngineProvider)
+    ↓ per-student tracking, per-slide analytics, dip/recovery detection
+    ↓ → Teacher Dashboard (aggregated, anonymized)
+    ↓ → Student Dashboard (personal engagement journey)
+    ↓ → Session Timeline (auto-built from live data)
 Gemini API
     ↓ personalized recap (student-private) + aggregated insights (teacher)
-Backboard
-    ↓ cross-session pattern memory
+Backboard Multi-Agent Architecture
+    ├─ Engagement Agent (interprets live signals)
+    ├─ Content Agent (tracks topic difficulty)
+    ├─ Reflection Agent (summarizes student self-reports)
+    ├─ Intervention Agent (generates contextual teacher advice)
+    ├─ Student Support Agent (generates historic student recovery plans)
+    └─ Memory Agent (stores/retrieves cross-session trends)
 Solana
     ↓ audit proofs (SHA-256 hashes only)
 ```
@@ -50,26 +57,72 @@ Solana
 **Privacy boundaries:**
 - Teachers **only** see aggregated, anonymized class-level data
 - Students **own** their data — view, export, or delete any time
-- Raw media is **deleted immediately** after on-device processing
+- Raw video **never leaves the browser** — only computed metrics flow to dashboards
+- No facial recognition, no biometric ID, no persistent identity
 - Every access is **logged** with tamper-evident verification
+
+---
+
+## Live Demo — Real Computer Vision
+
+The live demo (`/live-demo`) is the **central session engine** that drives the entire app with real data.
+
+### How It Works
+- **MediaPipe Face Landmarker** runs as a WASM module in the browser
+- Tracks **up to 5 students** simultaneously from a single webcam
+- Extracts per-face signals every 200ms:
+  - Face present / absent
+  - Head pose (yaw, pitch)
+  - Eye openness / blink approximation
+  - Gaze stability
+  - Movement stability
+  - Mouth activity (heuristic)
+  - Head down (heuristic)
+  - Possible drowsiness (compound heuristic)
+- Maps signals → engagement states via a decision tree
+- Pushes events to the **SessionEngine**, which computes per-student and per-slide analytics
+- All dashboards consume this data in real time
+
+### PPT Upload
+- Upload a `.pptx` file to use your own slide deck
+- Client-side parsing via JSZip (no server upload)
+- Slide titles and content are extracted and used as the active deck
+- Or use the default 6-slide "Neural Networks Deep Dive" demo deck
+
+### Signal Honesty
+
+| Tier | Signals |
+|---|---|
+| ✅ **Direct Measurements** | Face detection, head pose (yaw/pitch), eye openness, gaze stability, movement |
+| 🔧 **Heuristic Approximations** | Mouth activity, head down, drowsiness, engagement states |
+| 🧪 **Experimental / Future** | Hand raise, sleeping, phone use, question asking |
 
 ---
 
 ## Features
 
+### Live Demo (`/live-demo`)
+- Real-time multi-student tracking (up to 5 faces)
+- Per-face overlays with state, score, confidence, and micro-signal badges
+- PPT upload or default demo deck
+- Slide navigation with keyboard arrows
+- Per-slide analytics panel
+- Live event feed (state transitions)
+- Privacy & signal honesty classification card
+
 ### Teacher Dashboard (`/teacher`)
-- Classroom engagement overview with 4 summary stats
-- Slide-by-slide engagement chart with Slide 4 dip highlighted
+- Classroom engagement overview with live stats
+- Slide-by-slide engagement bar chart (live or demo data)
+- Engagement timeline chart
 - Aggregated student feedback reasons
 - Zone-based engagement heatmap
 - AI teaching recommendations (Gemini-powered)
+- At-risk student alerts
 - Post-Slide-4 behavioral shift analysis
-- Top weak topic and best intervention cards
 
 ### Student Dashboard (`/student`)
-- Personal engagement timeline
-- Focus moments and drop-off highlights
-- Topic-by-topic breakdown
+- Personal engagement timeline (live or demo)
+- Topic-by-topic comprehension breakdown
 - 3-step reflection flow with reason selection
 - AI recap with simpler explanation
 - Worked example card
@@ -77,7 +130,7 @@ Solana
 - Personal study advice and learning pattern insights
 
 ### Session Timeline (`/session`)
-- 6-slide interactive timeline with engagement and confusion bars
+- Interactive timeline auto-built from live slide analytics
 - Engagement curve with dip zone and threshold
 - 5-beat story card (narrative of the session)
 - Detailed slide panel with transcript, metrics, and recommendations
@@ -85,11 +138,10 @@ Solana
 ### Memory Insights (`/memory`)
 - Recurring confusion topics with cross-session trend indicators
 - Disengagement windows analysis
-- Cross-session trend charts (engagement vs. confusion, support needs)
+- Cross-session trend charts
 - Class-wide and student-level pattern examples
-- Teaching format analysis (best vs. weakest formats)
-- Memory timeline: how the system learned across sessions
-- Multi-agent insight convergence (Presage + Gemini + Backboard)
+- Teaching format analysis
+- Multi-agent insight convergence (MediaPipe + Gemini + Backboard)
 
 ### Privacy & Audit (`/privacy`)
 - 6 privacy-by-design principles
@@ -100,40 +152,21 @@ Solana
 - Solana audit proofs with verified entries
 - Tamper-evident access log with chained hashes
 
-### Landing Page (`/`)
-- One-line pitch with 5-step workflow
-- Teacher and student value cards
-- Technology category mapping
-- Demo scenario walkthrough
-- Privacy trust section
-- Navigation to all dashboards
-
 ---
 
-## Demo Scenario
+## Demo Flow (For Judges)
 
 > **Session 5 — Neural Networks Deep Dive** (21 students, 6 slides)
 
-1. Session opens with **87% engagement**
-2. **Slide 4** (Backpropagation Math) hits — engagement crashes to **45%**, confusion spikes to **62%**
-3. **43% of students** report "too fast" and "unclear example"
-4. Gemini generates a **personalized recap** with simpler explanation, worked example, and 3 review questions — **private to each student**
-5. Teacher receives **aggregated insight**: theory-heavy content → 35% avg engagement drop. Suggestion: add visual scaffolding
-6. **Backboard memory** flags this as the **3rd occurrence** of this pattern — projects **48%+ drop next session** without change
-
-**The entire intelligence loop runs in under 60 seconds.**
-
----
-
-## Pitch Bullets
-
-- **"Detect confusion. Help students learn. Help teachers teach."**
-- Privacy-first: raw media never stored, teachers never see individual data
-- Reflection-driven: students validate AI detections, not the other way around
-- Persistent memory: the system learns and improves across sessions
-- Explainable: every insight shows its source data, confidence, and reasoning
-- On-chain audit: tamper-evident proofs for every data access — verifiable by anyone
-- No grades, no discipline, no ranking — learning support only
+1. Open `/live-demo` → Start Live Session → grant camera
+2. Students appear as tracked faces with real-time overlays
+3. Navigate slides with ← → arrow keys
+4. Watch dashboards update in real time:
+   - `/teacher` — class overview, engagement chart, at-risk alerts
+   - `/student` — topic breakdown, engagement journey
+   - `/session` — auto-built timeline from live data
+5. Upload your own `.pptx` to test with custom content
+6. All data stays in your browser — no server, no storage
 
 ---
 
@@ -164,239 +197,31 @@ npm run build
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
-- **Charts**: Recharts
-- **Design**: Glassmorphism, dark theme, custom animations
+| Layer | Technology |
+|---|---|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS 4 |
+| **Charts** | Recharts |
+| **Computer Vision** | MediaPipe Face Landmarker (WASM) |
+| **PPTX Parsing** | JSZip |
+| **State Management** | React Context + useSyncExternalStore |
+| **Design** | Glassmorphism, dark theme, custom animations |
 
 ---
 
-## Important Notes
+## Integration Architecture
 
-- This is an MVP demo with mock data — no real backend or API calls
-- All student data shown is simulated
-- Presage, Gemini, Backboard, and Solana integrations are represented as placeholders
-- The focus is on demonstrating the product concept, UX, and privacy architecture
+| Component | Status | Details |
+|---|---|---|
+| **MediaPipe Face Landmarker** | ✅ Real | Browser-based WASM. Runs on any device with a camera. No server needed. |
+| **Session Engine** | ✅ Real | Central state store with per-student, per-slide analytics, dip/recovery detection, timeline generation |
+| **Gemini API** | ✅ Real | Server-side integration (`/api/gemini`). Generates live recaps, explanations, recommendations |
+| **Frontend** | ✅ Real | Next.js 16, Tailwind CSS 4, Recharts. All UI, routing, animations |
+| **Backboard** | 🔶 Simulated | Multi-agent memory and coordination are mocked via `BackboardProvider` |
+| **Solana** | 🔶 Simulated | Audit proofs generated via `SolanaProvider` using real SHA-256 hashes locally |
+| **Student Data** | 🔶 Demo | All profiles, reflections, and class participation metrics are demo data (replaced by live session data when camera is active) |
 
 ---
 
 *Built for the Google Antigravity Hackathon 2026.*
-
-
-### WHAT TO DO DO NEXT:
-Project Handover — InsightBoard AI
-
-We’ve built the app up to the Gemini integration stage. The project is a privacy-first classroom learning copilot built as a Next.js App Router web app with TypeScript, Tailwind CSS, and Recharts.
-
-What’s already implemented
-
-Core app structure
-
-The app already has these main pages working:
-	•	Landing page
-	•	Teacher dashboard
-	•	Student dashboard
-	•	Session timeline page
-	•	Memory insights page
-	•	Privacy and audit page
-
-Current product flow
-
-The app is designed around this loop:
-
-detect engagement dip → map it to a slide/topic → ask student why → generate AI support → show teacher aggregated insights → remember recurring patterns
-
-UI / UX
-
-A full modern UI pass has already been done:
-	•	premium dark/futuristic design
-	•	motion system across pages
-	•	animated charts
-	•	scroll-triggered section reveals
-	•	polished cards, layouts, and dashboards
-	•	stronger visual emphasis on teacher dashboard and memory page
-
-Mock/demo logic already built
-
-These MVP demo elements are already in place:
-	•	1 class session with 6 slides
-	•	clear engagement dip on slide 4
-	•	student reflection flow
-	•	teacher aggregated insight flow
-	•	recurring pattern memory from previous sessions
-	•	at-risk alert
-	•	privacy-first trust messaging
-	•	Solana / Presage / Backboard placeholders were already designed in concept
-
-Gemini integration — completed
-
-Gemini is now the first real integration that has been added.
-
-Gemini is being used for:
-	•	student recap generation
-	•	simpler explanation of the confusing topic
-	•	worked example generation
-	•	review question generation
-	•	teacher recommendation summary
-	•	aggregated reflection summary
-
-Gemini implementation status
-Already done:
-	•	server-side Gemini integration layer / API route
-	•	environment variable setup
-	•	Gemini connected into the most important student and teacher cards
-	•	loading states
-	•	error states
-	•	fallback behavior so demo still works if API fails
-	•	privacy-first structure so raw student media is not sent to Gemini, only structured insight/topic/reflection data
-
-⸻
-
-What still needs to be done
-
-1. Presage integration
-
-Next task is to add a real or semi-real Presage-aligned signal pipeline.
-
-Goal
-Replace some static engagement placeholder data with believable live/replayable engagement signal flow.
-
-What needs to be done
-	•	define a structured signal/event model
-	•	create a Presage adapter or event ingestion layer
-	•	connect signal output to:
-	•	teacher dashboard
-	•	session timeline
-	•	student timeline
-	•	make charts respond to actual event data
-	•	keep it limited to useful states like:
-	•	focused
-	•	confused
-	•	distracted
-	•	re-engaged
-
-Important
-Do not build creepy surveillance logic or too many labels.
-
-⸻
-
-2. Backboard integration
-
-After Presage, add the Backboard memory/orchestration layer.
-
-Goal
-Turn the memory page into a real persistent learning intelligence feature.
-
-What needs to be done
-Use Backboard for:
-	•	recurring confusion topics
-	•	recurring disengagement patterns
-	•	memory across 2–3 sessions
-	•	at-risk pattern retrieval
-	•	teacher recommendations informed by session history
-	•	student support informed by past weak spots
-
-Multi-agent structure expected
-	•	Engagement Agent
-	•	Content Agent
-	•	Reflection Agent
-	•	Intervention Agent
-	•	Student Support Agent
-	•	Memory Agent
-
-Must connect to:
-	•	Memory page
-	•	Teacher dashboard recommendation logic
-	•	Student pattern insight card
-	•	At-risk alert logic
-
-⸻
-
-3. Solana layer
-
-Do this last.
-
-Goal
-Add a lightweight trust/auditability layer.
-
-Solana should only be used for:
-	•	tamper-evident hashes
-	•	audit proof records
-	•	consent receipt proof concept
-	•	access verification records
-
-Solana should NOT be used for:
-	•	raw media storage
-	•	storing classroom video/photos on-chain
-	•	core app data
-
-Where it should show up
-	•	Privacy and Audit page
-	•	README / architecture summary
-	•	optional small trust panel or proof status card
-
-⸻
-
-4. Final polish after integrations
-
-Once the above is done:
-	•	unify all integration flows
-	•	check loading/fallback states
-	•	make sure UI still feels polished
-	•	confirm the story still stays:
-	•	privacy-first
-	•	learning support
-	•	teaching improvement
-	•	not surveillance
-
-⸻
-
-Current tech stack
-	•	Next.js App Router
-	•	TypeScript
-	•	Tailwind CSS
-	•	Recharts
-	•	Gemini API
-	•	planned: Presage
-	•	planned: Backboard
-	•	planned: Solana as audit layer only
-
-⸻
-
-Important product rules
-
-These should stay unchanged:
-	•	teachers should only see aggregated insights by default
-	•	teachers should not see raw student media
-	•	raw media should not be sent to Gemini
-	•	the app should be framed as learning support, not surveillance
-	•	any trust/privacy language must stay realistic
-	•	Solana must not be presented as “consent is unnecessary”
-
-⸻
-
-Recommended next order
-
-Best handoff order:
-	1.	Presage integration
-	2.	Backboard integration
-	3.	Solana audit layer
-	4.	final polish + README + demo prep
-
-⸻
-
-Demo story to preserve
-
-The demo is centered on:
-	•	slide 4 causes the biggest engagement drop
-	•	students report reasons like:
-	•	too fast
-	•	unclear explanation
-	•	Gemini generates:
-	•	recap
-	•	simpler explanation
-	•	worked example
-	•	review questions
-	•	teacher sees aggregated recommendation
-	•	memory page shows this is a recurring pattern across sessions

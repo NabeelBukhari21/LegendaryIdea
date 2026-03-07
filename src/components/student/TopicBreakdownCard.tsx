@@ -6,6 +6,7 @@ import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { topicBreakdown } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 const compStyles: Record<string, { label: string; variant: "success" | "warning" | "danger" }> = {
     strong: { label: "Got it!", variant: "success" },
@@ -14,8 +15,27 @@ const compStyles: Record<string, { label: string; variant: "success" | "warning"
 };
 
 export default function TopicBreakdownCard() {
-    const strongCount = topicBreakdown.filter((t) => t.comprehension === "strong").length;
-    const reviewCount = topicBreakdown.filter((t) => t.comprehension === "needs-review").length;
+    const { state } = useSession();
+    const hasLive = state.totalEvents > 0;
+
+    const topics = hasLive
+        ? state.slides.map(slide => {
+            const a = state.slideAnalytics.get(slide.id);
+            const eng = a?.avgEngagement ?? 0;
+            const comp = eng >= 80 ? "strong" : eng >= 60 ? "moderate" : "needs-review";
+            return {
+                slideId: slide.id,
+                topic: slide.topic,
+                engagement: eng,
+                comprehension: comp as "strong" | "moderate" | "needs-review",
+                emoji: slide.difficulty === "hard" ? "🔴" : slide.difficulty === "medium" ? "🟡" : "🟢",
+                timeSpent: `${slide.durationMin} min`,
+            };
+        })
+        : topicBreakdown;
+
+    const strongCount = topics.filter((t) => t.comprehension === "strong").length;
+    const reviewCount = topics.filter((t) => t.comprehension === "needs-review").length;
 
     return (
         <Reveal delay={0.2} duration={0.6}>
@@ -32,7 +52,7 @@ export default function TopicBreakdownCard() {
                 </div>
 
                 <div className="space-y-2.5">
-                    {topicBreakdown.map((topic) => {
+                    {topics.map((topic) => {
                         const comp = compStyles[topic.comprehension];
                         return (
                             <div

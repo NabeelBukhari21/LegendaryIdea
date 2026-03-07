@@ -15,20 +15,21 @@ import {
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { engagementTimeline, session } from "@/data/mockData";
-import { Reveal } from "@/components/motion/MotionKit";
+import { Reveal, AnimatedCounter } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 interface CustomTooltipProps {
     active?: boolean;
-    payload?: Array<{ value: number; payload: { time: string; slide: number; engagement: number } }>;
+    payload?: Array<{ value: number; payload: { time: string; slide?: number; engagement: number } }>;
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
     if (active && payload && payload.length) {
         const d = payload[0].payload;
-        const slideInfo = session.find((s) => s.id === d.slide);
+        const slideInfo = d.slide ? session.find((s) => s.id === d.slide) : undefined;
         return (
             <div className="glass-card p-3 text-xs border border-accent/20 max-w-[220px]">
-                <p className="text-foreground font-semibold">{slideInfo?.title || `Slide ${d.slide}`}</p>
+                <p className="text-foreground font-semibold">{slideInfo?.title || (d.slide ? `Slide ${d.slide}` : "Session")}</p>
                 <p className="text-muted">{d.time}</p>
                 <p className={`font-bold text-base mt-1 ${d.engagement < 60 ? "text-danger" : d.engagement < 80 ? "text-warning" : "text-success"}`}>
                     {d.engagement}% engaged
@@ -40,7 +41,11 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export default function EngagementSummary() {
-    const avgEngagement = Math.round(
+    const { state: sessionState } = useSession();
+    const hasLive = sessionState.timelineData.length > 1;
+    const chartData = hasLive ? sessionState.timelineData : engagementTimeline;
+
+    const avgEngagement = hasLive ? sessionState.classAvgEngagement : Math.round(
         session.reduce((sum, s) => sum + s.engagement, 0) / session.length
     );
 
@@ -53,14 +58,19 @@ export default function EngagementSummary() {
                         <p className="text-sm text-muted">Session 5 — How your focus flowed through the lecture</p>
                     </div>
                     <div className="text-right">
-                        <div className="text-3xl font-extrabold gradient-text">{avgEngagement}%</div>
-                        <div className="text-xs text-muted">Session Average</div>
+                        <div className="text-3xl font-extrabold gradient-text">
+                            <AnimatedCounter value={avgEngagement} />%
+                        </div>
+                        <div className="text-xs text-muted flex items-center justify-end gap-1.5 mt-1">
+                            {hasLive && <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />}
+                            {hasLive ? "Live Engagement" : "Session Average"}
+                        </div>
                     </div>
                 </div>
 
                 <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={engagementTimeline} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                             <defs>
                                 <linearGradient id="studentEngGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />

@@ -7,6 +7,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import { teacherRecommendation } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
+import { useBackboard } from "@/components/backboard/BackboardProvider";
 
 const typeConfig: Record<string, { icon: string; color: string; bg: string }> = {
     pacing: { icon: "⏱️", color: "text-warning", bg: "bg-warning/15" },
@@ -19,6 +20,7 @@ export default function RecommendationCard() {
     const rec = teacherRecommendation;
     const config = typeConfig[rec.type];
     const { data, isLoading } = useTeacherInsight();
+    const { isProcessing, activeTeacherRecommendations } = useBackboard();
 
     const titleText = data?.recommendation?.title || rec.title;
     const descriptionText = data?.recommendation?.description || rec.description;
@@ -75,7 +77,7 @@ export default function RecommendationCard() {
 
                             {/* Suggested steps */}
                             <div className="mb-4">
-                                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Suggested Approach</p>
+                                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Recent Strategy</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {detailedSteps.map((step, i) => (
                                         <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
@@ -86,6 +88,29 @@ export default function RecommendationCard() {
                                         </div>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Backboard Agent Additions */}
+                            <div className="mb-4 glass-card p-3 bg-blue-500/5 border-blue-500/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="info" size="sm">Backboard Target</Badge>
+                                    <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Cross-Session Advisory</p>
+                                </div>
+                                {isProcessing ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                                        <span className="text-[10px] text-muted animate-pulse">Checking historical agent memory...</span>
+                                    </div>
+                                ) : (
+                                    <ul className="space-y-1.5 ml-1">
+                                        {activeTeacherRecommendations.map((recStr, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-xs text-muted">
+                                                <span className="text-blue-400 mt-0.5">•</span>
+                                                <span>{recStr}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
 
                             {/* Supporting data */}

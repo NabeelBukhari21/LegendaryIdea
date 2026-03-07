@@ -44,7 +44,7 @@ export default function EngagementOverlay() {
                     <h3 className="text-lg font-bold text-foreground">Engagement Curve</h3>
                     <p className="text-sm text-muted">Real-time engagement across the session</p>
                 </div>
-                <Badge variant="info">Presage</Badge>
+                <Badge variant="info">MediaPipe</Badge>
             </div>
 
             <div className="h-64">

@@ -122,7 +122,7 @@ export default function MemoryPage() {
                     <div>
                         <p className="text-sm font-semibold text-foreground mb-1">How Session Memory Works</p>
                         <p className="text-xs text-muted leading-relaxed">
-                            InsightBoard AI remembers patterns across sessions using <strong className="text-foreground">Backboard</strong> for persistent memory, <strong className="text-foreground">Presage</strong> for engagement detection, and <strong className="text-foreground">Gemini</strong> for content analysis.
+                            InsightBoard AI remembers patterns across sessions using <strong className="text-foreground">Backboard</strong> for persistent memory, <strong className="text-foreground">MediaPipe</strong> for engagement detection, and <strong className="text-foreground">Gemini</strong> for content analysis.
                             Patterns are detected automatically when recurring signals appear. All data is <strong className="text-foreground">aggregated and anonymized</strong> — never used for grading or evaluation.{" "}
                             <a href="/privacy" className="text-accent-light hover:underline">View full privacy and audit trail →</a>
                         </p>

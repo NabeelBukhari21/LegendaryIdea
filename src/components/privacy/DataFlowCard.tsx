@@ -12,7 +12,7 @@ export default function DataFlowCard() {
             label: "Capture",
             icon: "📸",
             input: "Camera/mic feed",
-            process: "On-device engagement analysis via Presage",
+            process: "On-device engagement analysis via MediaPipe",
             output: "Engagement score (0–100)",
             retention: "Raw media: deleted immediately after processing",
             color: "bg-accent/15 ring-accent/20 text-accent-light",

@@ -21,7 +21,7 @@ export default function EncryptionStorageCard() {
         },
         {
             layer: "Processing",
-            protocol: "On-device (Presage)",
+            protocol: "On-device (MediaPipe)",
             detail: "Raw media is processed entirely on the student's device. Engagement scores are computed locally — raw video/audio never reaches our servers.",
             icon: "📱",
         },

@@ -4,21 +4,51 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import { enrichedSlides } from "@/data/mockData";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 export default function SessionSummaryBar() {
-    const avgEngagement = Math.round(enrichedSlides.reduce((s, sl) => s + sl.engagement, 0) / enrichedSlides.length);
-    const avgConfusion = Math.round(enrichedSlides.reduce((s, sl) => s + sl.confusion, 0) / enrichedSlides.length);
-    const totalDuration = enrichedSlides.reduce((s, sl) => s + sl.duration, 0);
-    const dipSlide = enrichedSlides.find((s) => s.status === "dip");
-    const peakSlide = enrichedSlides.find((s) => s.status === "peak");
+    const { state } = useSession();
+    const hasLive = state.totalEvents > 0;
+
+    let avgEngagement: number, avgConfusion: number, totalDuration: number;
+    let dipSlideLabel: string, peakSlideLabel: string;
+    const slideCount = state.slides.length;
+
+    if (hasLive) {
+        // Compute from live session data
+        const analytics = Array.from(state.slideAnalytics.values()).filter(a => a.eventCount > 0);
+        avgEngagement = analytics.length > 0
+            ? Math.round(analytics.reduce((s, a) => s + a.avgEngagement, 0) / analytics.length)
+            : state.classAvgEngagement;
+        avgConfusion = analytics.length > 0
+            ? Math.round(analytics.reduce((s, a) => s + (a.confusionSpikes > 0 ? (a.states.confused / Math.max(1, a.eventCount)) * 100 : 0), 0) / analytics.length)
+            : 0;
+        totalDuration = Math.round((Date.now() - state.startTime) / 60000);
+
+        let minAvg = 100, maxAvg = 0, dipId = 0, peakId = 0;
+        analytics.forEach(a => {
+            if (a.avgEngagement < minAvg) { minAvg = a.avgEngagement; dipId = a.slideId; }
+            if (a.avgEngagement > maxAvg) { maxAvg = a.avgEngagement; peakId = a.slideId; }
+        });
+        dipSlideLabel = analytics.length > 0 ? `S${dipId}: ${minAvg}%` : "N/A";
+        peakSlideLabel = analytics.length > 0 ? `S${peakId}: ${maxAvg}%` : "N/A";
+    } else {
+        avgEngagement = Math.round(enrichedSlides.reduce((s, sl) => s + sl.engagement, 0) / enrichedSlides.length);
+        avgConfusion = Math.round(enrichedSlides.reduce((s, sl) => s + sl.confusion, 0) / enrichedSlides.length);
+        totalDuration = enrichedSlides.reduce((s, sl) => s + sl.duration, 0);
+        const dipSlide = enrichedSlides.find((s) => s.status === "dip");
+        const peakSlide = enrichedSlides.find((s) => s.status === "peak");
+        dipSlideLabel = dipSlide ? `S${dipSlide.id}: ${dipSlide.engagement}%` : "N/A";
+        peakSlideLabel = peakSlide ? `S${peakSlide.id}: ${peakSlide.engagement}%` : "N/A";
+    }
 
     const stats = [
-        { label: "Session Avg", value: `${avgEngagement}%`, color: "text-accent-light", icon: "📊" },
+        { label: hasLive ? "Live Avg" : "Session Avg", value: `${avgEngagement}%`, color: "text-accent-light", icon: "📊" },
         { label: "Duration", value: `${totalDuration} min`, color: "text-foreground", icon: "⏱️" },
-        { label: "Slides", value: "6", color: "text-foreground", icon: "📄" },
-        { label: "Biggest Dip", value: dipSlide ? `S${dipSlide.id}: ${dipSlide.engagement}%` : "N/A", color: "text-danger", icon: "📉" },
-        { label: "Peak", value: peakSlide ? `S${peakSlide.id}: ${peakSlide.engagement}%` : "N/A", color: "text-success", icon: "📈" },
-        { label: "Avg Confusion", value: `${avgConfusion}%`, color: avgConfusion > 25 ? "text-warning" : "text-success", icon: "🤔" },
+        { label: "Slides", value: `${slideCount}`, color: "text-foreground", icon: "📄" },
+        { label: "Biggest Dip", value: dipSlideLabel, color: "text-danger", icon: "📉" },
+        { label: "Peak", value: peakSlideLabel, color: "text-success", icon: "📈" },
+        { label: "Confusion", value: hasLive ? `${state.confusionSpikes}` : `${avgConfusion}%`, color: avgConfusion > 25 || state.confusionSpikes > 3 ? "text-warning" : "text-success", icon: "🤔" },
     ];
 
     return (

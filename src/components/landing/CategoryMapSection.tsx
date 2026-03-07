@@ -24,7 +24,7 @@ export default function CategoryMapSection() {
             badgeColor: "success" as const,
         },
         {
-            name: "Presage",
+            name: "MediaPipe",
             icon: "👁️",
             role: "Engagement Detection",
             description: "Real-time, on-device engagement analysis from camera feeds. Computes engagement scores locally — raw media never leaves the device.",
@@ -65,7 +65,7 @@ export default function CategoryMapSection() {
             {/* Architecture flow */}
             <Reveal delay={0.2} blur>
                 <div className="flex items-center justify-center gap-2 mb-10 flex-wrap text-xs">
-                    {["Presage", "→", "Gemini", "→", "Backboard", "→", "Solana"].map((item, i) => (
+                    {["MediaPipe", "→", "Gemini", "→", "Backboard", "→", "Solana"].map((item, i) => (
                         item === "→" ? (
                             <span key={i} className="text-white/20 text-lg">→</span>
                         ) : (

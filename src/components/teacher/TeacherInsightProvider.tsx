@@ -53,19 +53,20 @@ export function TeacherInsightProvider({ children }: { children: React.ReactNode
                 });
 
                 if (!response.ok) {
-                    throw new Error("Failed to fetch insight");
+                    if (isMounted) setError(new Error("Failed to fetch insight"));
+                    return;
                 }
 
                 const json = await response.json();
                 if (isMounted) {
                     if (json.error) {
-                        throw new Error(json.error);
+                        setError(new Error(json.error));
+                        return;
                     }
                     setData(json);
                 }
             } catch (err) {
                 if (isMounted) {
-                    console.error("Gemini teacher context error, falling back to mock:", err);
                     setError(err instanceof Error ? err : new Error("Unknown error"));
                 }
             } finally {

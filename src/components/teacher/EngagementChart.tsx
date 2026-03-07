@@ -16,10 +16,11 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { engagementTimeline } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 interface CustomTooltipProps {
     active?: boolean;
-    payload?: Array<{ value: number; payload: { time: string; slide: number; engagement: number } }>;
+    payload?: Array<{ value: number; payload: { time: string; slide?: number; engagement: number } }>;
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
@@ -27,7 +28,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
         const data = payload[0].payload;
         return (
             <div className="glass-card p-3 text-xs border border-accent/20">
-                <p className="text-foreground font-semibold">Slide {data.slide}</p>
+                {data.slide && <p className="text-foreground font-semibold">Slide {data.slide}</p>}
                 <p className="text-muted">{data.time}</p>
                 <p className={`font-bold ${data.engagement < 60 ? "text-danger" : data.engagement < 80 ? "text-warning" : "text-success"}`}>
                     {data.engagement}% engaged
@@ -39,6 +40,13 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export default function EngagementChart() {
+    const { state: sessionState } = useSession();
+
+    const hasSessionData = sessionState.timelineData.length > 1;
+    const chartData = hasSessionData
+        ? sessionState.timelineData
+        : engagementTimeline;
+
     return (
         <Reveal delay={0.2} duration={0.6}>
             <Card>
@@ -48,14 +56,16 @@ export default function EngagementChart() {
                         <p className="text-sm text-muted mt-1">Session 5 — Neural Networks Deep Dive</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Badge variant="danger">⚠ Dip on Slide 4</Badge>
-                        <Badge variant="info">Presage</Badge>
+                        {!hasSessionData && <Badge variant="danger">⚠ Dip on Slide 4</Badge>}
+                        <Badge variant={hasSessionData ? "success" : "info"}>
+                            {hasSessionData ? "Live Session Data" : "Demo Data"}
+                        </Badge>
                     </div>
                 </div>
 
                 <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={engagementTimeline} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                             <defs>
                                 <linearGradient id="engGradient" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />

@@ -10,7 +10,7 @@ export default function RetentionPolicyCard() {
         {
             dataType: "Raw video/audio",
             retention: "Deleted immediately",
-            detail: "Processed on-device by Presage. Raw media never leaves the client. Only computed engagement scores are transmitted.",
+            detail: "Processed on-device by MediaPipe. Raw media never leaves the client. Only computed engagement scores are transmitted.",
             icon: "📸",
             severity: "strict",
         },

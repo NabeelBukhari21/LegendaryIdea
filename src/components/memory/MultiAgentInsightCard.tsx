@@ -25,7 +25,7 @@ export default function MultiAgentInsightCard() {
                         <div className="w-11 h-11 rounded-xl bg-accent/15 ring-1 ring-accent/20 flex items-center justify-center text-lg">🤖</div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-foreground">Multi-Agent Intelligence Summary</h3>
-                            <p className="text-xs text-muted">Combined analysis from Presage, Gemini, and Backboard</p>
+                            <p className="text-xs text-muted">Combined analysis from MediaPipe, Gemini, and Backboard</p>
                         </div>
                         <Badge variant="success">Converged</Badge>
                     </div>

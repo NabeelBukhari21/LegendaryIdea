@@ -1115,7 +1115,7 @@ export interface AgentInsight {
 
 export const multiAgentInsights: AgentInsight[] = [
   {
-    agent: "Presage",
+    agent: "MediaPipe",
     icon: "👁️",
     role: "Engagement Detection",
     insight: "Theory-heavy slides consistently reduce engagement by 30-40% across sessions. The 25-45 minute window is the highest-risk zone. Visual/example content recovers engagement within 5-8 minutes.",

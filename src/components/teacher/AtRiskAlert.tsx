@@ -6,10 +6,17 @@ import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { students } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useBackboard } from "@/components/backboard/BackboardProvider";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 export default function AtRiskAlert() {
-    const atRiskStudents = students.filter((s) => s.atRisk);
-    const lowEngStudents = students.filter((s) => s.avgEngagement < 70 && !s.atRisk);
+    const { isProcessing, atRiskProfiles } = useBackboard();
+    const { state: sessionState, getClassSummary } = useSession();
+    const hasLive = sessionState.totalEvents > 0;
+    const liveSummary = hasLive ? getClassSummary() : null;
+    const lowEngStudents = hasLive
+        ? liveSummary!.atRiskStudents.map(s => ({ id: s.id, alias: s.label, avgEngagement: s.score, atRisk: true, lastReflection: null }))
+        : students.filter((s) => s.avgEngagement < 70 && !s.atRisk);
 
     return (
         <Reveal delay={0.3} duration={0.6}>
@@ -27,41 +34,51 @@ export default function AtRiskAlert() {
                         </div>
                         <div className="flex-1">
                             <h3 className="font-bold text-foreground">Students Needing Support</h3>
-                            <p className="text-xs text-muted">Aggregated engagement patterns — privacy-first learning support</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <Badge variant="info" size="sm">Backboard Target</Badge>
+                                <p className="text-xs text-muted">Aggregated engagement patterns</p>
+                            </div>
                         </div>
-                        <Badge variant="danger">{atRiskStudents.length + lowEngStudents.length} identified</Badge>
+                        <Badge variant="danger">{atRiskProfiles.length + lowEngStudents.length} identified</Badge>
                     </div>
 
                     {/* Students needing extra support */}
                     <div className="space-y-3 mb-4">
-                        {atRiskStudents.map((student) => (
-                            <div key={student.id} className="glass-card p-4 bg-danger/5 border-danger/10">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-full bg-danger/20 ring-1 ring-danger/30 flex items-center justify-center text-danger text-sm font-bold">
-                                            {student.alias.split(" ")[1]?.charAt(0) || "?"}
+                        {isProcessing ? (
+                            <div className="py-8 flex flex-col items-center justify-center space-y-3">
+                                <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+                                <span className="text-xs text-muted animate-pulse">Backboard Agents Processing Risk Profiles...</span>
+                            </div>
+                        ) : (
+                            atRiskProfiles.map((profile) => (
+                                <div key={profile.studentId} className="glass-card p-4 bg-danger/5 border-danger/10">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-full bg-danger/20 ring-1 ring-danger/30 flex items-center justify-center text-danger text-sm font-bold">
+                                                {profile.alias.split(" ")[1]?.charAt(0) || "?"}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-foreground text-sm">{profile.alias}</p>
+                                                <p className="text-[10px] text-muted">Anonymized · Multi-session risk analysis</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-semibold text-foreground text-sm">{student.alias}</p>
-                                            <p className="text-[10px] text-muted">Anonymized · 3-session trend below threshold</p>
+                                        <div className="text-right">
+                                            <p className="text-xl font-extrabold text-danger">{100 - profile.riskScore}%</p>
+                                            <Badge variant="danger" size="sm">Extra Support</Badge>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-xl font-extrabold text-danger">{student.avgEngagement}%</p>
-                                        <Badge variant="danger" size="sm">Extra Support</Badge>
+                                    <ProgressBar value={100 - profile.riskScore} size="sm" />
+                                    <div className="mt-2 space-y-1">
+                                        {profile.activeFlags.map((flag, idx) => (
+                                            <div key={idx} className="flex items-start gap-1.5 text-[10px] text-muted">
+                                                <span className="text-danger mt-0.5">•</span>
+                                                <span>{flag}</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
-                                <ProgressBar value={student.avgEngagement} size="sm" />
-                                {student.lastReflection && (
-                                    <div className="mt-2 glass-card p-2 bg-white/[0.02] border-white/5">
-                                        <p className="text-[10px] text-muted">
-                                            <span className="font-semibold text-foreground">Latest reflection: </span>
-                                            <em>&ldquo;{student.lastReflection}&rdquo;</em>
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
 
                     {/* Emerging patterns */}
@@ -85,15 +102,15 @@ export default function AtRiskAlert() {
                     {/* Class health summary */}
                     <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                         <div className="glass-card p-2 bg-success/5 border-success/10">
-                            <div className="text-sm font-bold text-success">{students.filter(s => s.avgEngagement >= 80).length}</div>
+                            <div className="text-sm font-bold text-success">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 80).length : students.filter(s => s.avgEngagement >= 80).length}</div>
                             <div className="text-[10px] text-muted">On Track</div>
                         </div>
                         <div className="glass-card p-2 bg-warning/5 border-warning/10">
-                            <div className="text-sm font-bold text-warning">{students.filter(s => s.avgEngagement >= 60 && s.avgEngagement < 80).length}</div>
+                            <div className="text-sm font-bold text-warning">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 60 && s.currentScore < 80).length : students.filter(s => s.avgEngagement >= 60 && s.avgEngagement < 80).length}</div>
                             <div className="text-[10px] text-muted">Emerging</div>
                         </div>
                         <div className="glass-card p-2 bg-danger/5 border-danger/10">
-                            <div className="text-sm font-bold text-danger">{atRiskStudents.length}</div>
+                            <div className="text-sm font-bold text-danger">{atRiskProfiles.length}</div>
                             <div className="text-[10px] text-muted">Needs Support</div>
                         </div>
                     </div>

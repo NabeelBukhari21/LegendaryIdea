@@ -44,7 +44,7 @@ export default function CTASection() {
                     <Badge variant="default" size="md">Next.js</Badge>
                     <Badge variant="default" size="md">TypeScript</Badge>
                     <Badge variant="success" size="md">Gemini</Badge>
-                    <Badge variant="warning" size="md">Presage</Badge>
+                    <Badge variant="warning" size="md">MediaPipe</Badge>
                     <Badge variant="info" size="md">Backboard</Badge>
                     <Badge variant="default" size="md">Solana</Badge>
                 </div>

@@ -33,7 +33,7 @@ export default function SessionPage() {
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Badge variant="default">Presage Detection</Badge>
+                        <Badge variant="default">Live Analysis</Badge>
                         <Button href="/teacher" variant="secondary" size="sm">
                             ← Teacher Dashboard
                         </Button>

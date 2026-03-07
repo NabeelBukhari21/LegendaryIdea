@@ -15,7 +15,7 @@ export default function PrivacyByDesignCard() {
         {
             icon: "🚫",
             title: "No Raw Media in Teacher Workflows",
-            description: "Teachers never see raw student video, audio, or biometric data at any point. Presage processes engagement signals locally and discards raw media immediately after analysis. Only computed engagement scores are retained.",
+            description: "Teachers never see raw student video, audio, or biometric data at any point. MediaPipe processes engagement signals locally and discards raw media immediately after analysis. Only computed engagement scores are retained.",
             detail: "Raw media → local processing → engagement score → media deleted",
         },
         {

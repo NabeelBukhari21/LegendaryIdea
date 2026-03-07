@@ -5,55 +5,24 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { Reveal, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/motion/MotionKit";
+import { useSolana } from "@/components/solana/SolanaProvider";
 
 export default function SolanaAuditCard() {
-    const auditEntries = [
-        {
-            action: "Session 5 engagement data accessed by teacher",
-            type: "access",
-            hash: "7f3a...c2d1",
-            timestamp: "Mar 6, 2026 · 14:32 UTC",
-            block: "281,492,017",
-            verified: true,
-        },
-        {
-            action: "Student consent for Session 5 recorded",
-            type: "consent",
-            hash: "a1b2...e9f0",
-            timestamp: "Mar 6, 2026 · 13:00 UTC",
-            block: "281,491,842",
-            verified: true,
-        },
-        {
-            action: "Session 4 raw media deletion confirmed",
-            type: "deletion",
-            hash: "d4c5...b8a3",
-            timestamp: "Feb 28, 2026 · 02:00 UTC",
-            block: "280,892,103",
-            verified: true,
-        },
-        {
-            action: "Aggregated class report generated for Session 4",
-            type: "access",
-            hash: "e5f6...c7d8",
-            timestamp: "Feb 27, 2026 · 15:10 UTC",
-            block: "280,891,456",
-            verified: true,
-        },
-        {
-            action: "Student Gamma data deletion request processed",
-            type: "deletion",
-            hash: "9a8b...1e2f",
-            timestamp: "Feb 20, 2026 · 09:45 UTC",
-            block: "280,321,789",
-            verified: true,
-        },
-    ];
+    const { recentProofs, networkStatus } = useSolana();
 
     const typeConfig: Record<string, { badge: "success" | "info" | "warning" | "default"; label: string }> = {
-        access: { badge: "info", label: "Access" },
-        consent: { badge: "success", label: "Consent" },
-        deletion: { badge: "warning", label: "Deletion" },
+        "View": { badge: "info", label: "Access" },
+        "Generate": { badge: "success", label: "Generation" },
+        "Consent": { badge: "success", label: "Consent" },
+        "Delete": { badge: "warning", label: "Deletion" },
+        "Config": { badge: "default", label: "Config" }
+    };
+
+    const getConfig = (action: string) => {
+        for (const [key, cfg] of Object.entries(typeConfig)) {
+            if (action.includes(key)) return cfg;
+        }
+        return { badge: "default" as const, label: "System" };
     };
 
     return (
@@ -67,7 +36,10 @@ export default function SolanaAuditCard() {
                             <h3 className="text-lg font-bold text-foreground">Solana Audit Proofs</h3>
                             <p className="text-xs text-muted">Tamper-evident verification — hashes only, no student content on-chain</p>
                         </div>
-                        <Badge variant="success">All verified</Badge>
+                        <div className="flex flex-col items-end gap-1">
+                            <Badge variant={networkStatus === "devnet" ? "warning" : "success"}>{networkStatus === "devnet" ? "Devnet Active" : "Mainnet Active"}</Badge>
+                            <span className="text-[10px] text-muted">{recentProofs.filter(p => p.status === "verified").length}/{recentProofs.length} verified</span>
+                        </div>
                     </div>
 
                     {/* What goes on-chain */}
@@ -98,25 +70,33 @@ export default function SolanaAuditCard() {
                     {/* Audit log entries */}
                     <StaggerContainer delay={0.3} stagger={0.08}>
                         <div className="space-y-2">
-                            {auditEntries.map((entry, i) => {
-                                const cfg = typeConfig[entry.type];
+                            {recentProofs.slice(0, 5).map((entry, i) => {
+                                const cfg = getConfig(entry.action);
                                 return (
-                                    <StaggerItem key={i}>
+                                    <StaggerItem key={entry.id}>
                                         <div className="glass-card p-3 bg-white/[0.01] border-white/5 hover:bg-white/[0.03] transition-all">
                                             <div className="flex items-center justify-between mb-1">
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant={cfg.badge} size="sm">{cfg.label}</Badge>
-                                                    <span className="text-xs text-foreground">{entry.action}</span>
+                                                    <span className="text-xs text-foreground truncate max-w-[200px]">{entry.action}</span>
                                                 </div>
                                                 <div className="flex items-center gap-1.5">
-                                                    <span className="w-2 h-2 rounded-full bg-success" />
-                                                    <span className="text-[10px] text-success font-medium">Verified</span>
+                                                    {entry.status === "verified" ? (
+                                                        <>
+                                                            <span className="w-2 h-2 rounded-full bg-success" />
+                                                            <span className="text-[10px] text-success font-medium">Verified</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
+                                                            <span className="text-[10px] text-warning font-medium">Pending</span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-4 text-[10px] text-muted ml-1">
-                                                <span className="font-mono">Hash: {entry.hash}</span>
-                                                <span>Block: {entry.block}</span>
-                                                <span>{entry.timestamp}</span>
+                                                <span className="font-mono">Hash: {entry.dataHash.substring(0, 16)}...</span>
+                                                <span>{new Date(entry.timestamp).toLocaleTimeString()} UTC</span>
                                             </div>
                                         </div>
                                     </StaggerItem>

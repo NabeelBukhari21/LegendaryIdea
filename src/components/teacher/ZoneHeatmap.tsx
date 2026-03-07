@@ -43,7 +43,7 @@ export default function ZoneHeatmap() {
                             <h3 className="text-lg font-bold text-foreground">Classroom Zone Engagement</h3>
                             <p className="text-sm text-muted mt-0.5">Seating-area aggregated engagement heatmap</p>
                         </div>
-                        <Badge variant="info">Presage Zones</Badge>
+                        <Badge variant="info">Engagement Zones</Badge>
                     </div>
 
                     {/* Classroom visualization */}

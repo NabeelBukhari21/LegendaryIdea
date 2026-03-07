@@ -17,16 +17,12 @@ export default function TeacherDashboard() {
         <TeacherInsightProvider>
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* ── Header ──────────────────────────────── */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
                                 Teacher <span className="gradient-text">Dashboard</span>
                             </h1>
-                            <Badge variant="success" size="md">
-                                <span className="w-2 h-2 rounded-full bg-success animate-pulse-dot inline-block mr-1.5" />
-                                Live Session
-                            </Badge>
                         </div>
                         <p className="text-muted">
                             Session 5 — Neural Networks Deep Dive · Mar 6, 2026 · 21 students

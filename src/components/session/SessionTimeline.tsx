@@ -4,6 +4,7 @@ import React from "react";
 import Badge from "@/components/ui/Badge";
 import { enrichedSlides, type EnrichedSlide } from "@/data/mockData";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 const statusConfig: Record<string, { color: string; bg: string; border: string; ring: string; label: string }> = {
     strong: { color: "text-success", bg: "bg-success/15", border: "border-success/20", ring: "ring-success/20", label: "Strong" },
@@ -26,12 +27,40 @@ interface Props {
 }
 
 export default function SessionTimeline({ selectedSlide, onSelectSlide }: Props) {
+    const { state } = useSession();
+    const hasLive = state.totalEvents > 0;
+
+    // Build slide items from session engine or fall back to mockData
+    const slideItems: EnrichedSlide[] = hasLive
+        ? state.slides.map((slide, i) => {
+            const a = state.slideAnalytics.get(slide.id);
+            const eng = a?.avgEngagement ?? 0;
+            const conf = a ? Math.round((a.states.confused / Math.max(1, a.eventCount)) * 100) : 0;
+            const isDip = eng > 0 && eng < 60;
+            const isPeak = eng >= 80;
+            const isRecovery = a?.recoveryMoment ?? false;
+            const status = isDip ? "dip" : isRecovery ? "recovery" : isPeak ? "peak" : eng >= 60 ? "moderate" : "strong";
+            return {
+                id: slide.id,
+                title: slide.title,
+                topic: slide.topic,
+                engagement: eng,
+                confusion: conf,
+                duration: slide.durationMin,
+                timeRange: `${i * 10}:00 – ${(i + 1) * 10}:00`,
+                status,
+                notes: slide.summary,
+                marker: isDip ? { type: "dip" as const, label: `Dip: ${eng}%` } : isPeak ? { type: "peak" as const, label: `Peak: ${eng}%` } : isRecovery ? { type: "recovery" as const, label: "Recovery" } : undefined,
+            } as unknown as EnrichedSlide;
+        })
+        : enrichedSlides;
+
     return (
         <StaggerContainer delay={0.4} stagger={0.06} className="space-y-0">
-            {enrichedSlides.map((slide, i) => {
+            {slideItems.map((slide, i) => {
                 const cfg = statusConfig[slide.status];
                 const isSelected = selectedSlide === slide.id;
-                const isLast = i === enrichedSlides.length - 1;
+                const isLast = i === slideItems.length - 1;
 
                 return (
                     <StaggerItem key={slide.id}>

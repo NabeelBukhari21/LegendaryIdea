@@ -16,10 +16,18 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { slideBarData } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
+
+interface BarItem {
+    slide: string;
+    engagement: number;
+    fullLabel: string;
+    isDip: boolean;
+}
 
 interface CustomTooltipProps {
     active?: boolean;
-    payload?: Array<{ value: number; payload: { slide: string; engagement: number; fullLabel: string; isDip: boolean } }>;
+    payload?: Array<{ value: number; payload: BarItem }>;
 }
 
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
@@ -31,9 +39,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
                 <p className={`font-bold text-base ${d.isDip ? "text-danger" : d.engagement >= 80 ? "text-success" : "text-warning"}`}>
                     {d.engagement}%
                 </p>
-                {d.isDip && (
-                    <p className="text-danger/80 mt-1">⚠ Engagement breakdown point</p>
-                )}
+                {d.isDip && <p className="text-danger/80 mt-1">⚠ Engagement breakdown point</p>}
             </div>
         );
     }
@@ -47,61 +53,73 @@ function getBarColor(engagement: number, isDip: boolean): string {
 }
 
 export default function SlideBySlideChart() {
+    const { state } = useSession();
+    const hasLive = state.totalEvents > 0;
+
+    // Build bar data from session engine if available
+    const data: BarItem[] = hasLive
+        ? state.slides.map(slide => {
+            const a = state.slideAnalytics.get(slide.id);
+            const eng = a?.avgEngagement ?? 0;
+            return {
+                slide: `S${slide.id}`,
+                engagement: eng,
+                fullLabel: slide.title,
+                isDip: eng > 0 && eng < 60,
+            };
+        })
+        : slideBarData;
+
+    // Find lowest slide for badge
+    const lowestLive = hasLive
+        ? data.reduce((min, d) => (d.engagement > 0 && d.engagement < min.engagement ? d : min), { ...data[0], engagement: 100 })
+        : null;
+
     return (
         <Reveal delay={0.1} duration={0.6}>
             <Card>
                 <div className="flex items-center justify-between mb-5">
                     <div>
                         <h3 className="text-lg font-bold text-foreground">Slide-by-Slide Engagement</h3>
-                        <p className="text-sm text-muted mt-0.5">All 6 slides — Slide 4 is the clear breakdown point</p>
+                        <p className="text-sm text-muted mt-0.5">
+                            {hasLive ? "Live session data" : "All 6 slides — Slide 4 is the clear breakdown point"}
+                        </p>
                     </div>
-                    <Badge variant="danger">
-                        <span className="w-2 h-2 rounded-full bg-danger animate-pulse-dot inline-block mr-1.5" />
-                        Slide 4: 45%
-                    </Badge>
+                    {hasLive && lowestLive && lowestLive.engagement < 60 ? (
+                        <Badge variant="danger">
+                            <span className="w-2 h-2 rounded-full bg-danger animate-pulse-dot inline-block mr-1.5" />
+                            {lowestLive.slide}: {lowestLive.engagement}%
+                        </Badge>
+                    ) : !hasLive ? (
+                        <Badge variant="danger">
+                            <span className="w-2 h-2 rounded-full bg-danger animate-pulse-dot inline-block mr-1.5" />
+                            Slide 4: 45%
+                        </Badge>
+                    ) : (
+                        <Badge variant="success">Live</Badge>
+                    )}
                 </div>
 
                 <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={slideBarData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }} barSize={40}>
+                        <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }} barSize={40}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                            <XAxis
-                                dataKey="slide"
-                                stroke="#64748b"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
-                            />
-                            <YAxis
-                                domain={[0, 100]}
-                                stroke="#64748b"
-                                fontSize={11}
-                                tickLine={false}
-                                axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
-                                tickFormatter={(v) => `${v}%`}
-                            />
+                            <XAxis dataKey="slide" stroke="#64748b" fontSize={12} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} />
+                            <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickFormatter={(v) => `${v}%`} />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
                             <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="6 4" strokeOpacity={0.5} />
                             <Bar dataKey="engagement" radius={[8, 8, 2, 2]} animationDuration={1500} animationEasing="ease-out">
-                                {slideBarData.map((entry, i) => (
-                                    <Cell
-                                        key={`cell-${i}`}
-                                        fill={getBarColor(entry.engagement, entry.isDip)}
-                                        fillOpacity={entry.isDip ? 1 : 0.7}
-                                        stroke={entry.isDip ? "#f43f5e" : "transparent"}
-                                        strokeWidth={entry.isDip ? 2 : 0}
-                                    />
+                                {data.map((entry, i) => (
+                                    <Cell key={`cell-${i}`} fill={getBarColor(entry.engagement, entry.isDip)} fillOpacity={entry.isDip ? 1 : 0.7} stroke={entry.isDip ? "#f43f5e" : "transparent"} strokeWidth={entry.isDip ? 2 : 0} />
                                 ))}
                             </Bar>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
 
-                {/* Slide labels */}
                 <div className="grid grid-cols-6 gap-1 mt-3">
-                    {slideBarData.map((s, i) => (
-                        <div key={i} className={`text-center text-[10px] leading-tight px-1 py-1.5 rounded-lg ${s.isDip ? "bg-danger/10 text-danger font-semibold" : "text-muted"
-                            }`}>
+                    {data.map((s, i) => (
+                        <div key={i} className={`text-center text-[10px] leading-tight px-1 py-1.5 rounded-lg ${s.isDip ? "bg-danger/10 text-danger font-semibold" : "text-muted"}`}>
                             {s.fullLabel.length > 20 ? s.fullLabel.slice(0, 18) + "…" : s.fullLabel}
                         </div>
                     ))}

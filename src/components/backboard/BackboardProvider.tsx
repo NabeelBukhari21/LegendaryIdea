@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { students, confusionPatterns } from "@/data/mockData";
 
 // --- 1. Define Multi-Agent Models ---
 export interface CrossSessionMemory {
@@ -48,7 +47,18 @@ export interface BackboardContextType {
 const BackboardContext = createContext<BackboardContextType | undefined>(undefined);
 
 // Define complex simulated outputs
-const initialCrossSessionPatterns: CrossSessionMemory[] = confusionPatterns.map(p => ({
+const fallbackConfusionPatterns = [
+    { id: "cp1", topic: "Chain Rule / Derivatives", occurrences: 3, sessions: ["Session 5", "Session 3", "Session 1"], trend: "increasing" as const, avgEngagementDrop: 38 },
+    { id: "cp2", topic: "Matrix Multiplication in Layers", occurrences: 2, sessions: ["Session 4", "Session 2"], trend: "stable" as const, avgEngagementDrop: 22 }
+];
+
+const fallbackStudents = [
+    { id: "s1", alias: "Student Alpha", avgEngagement: 82, atRisk: false },
+    { id: "s2", alias: "Student Beta", avgEngagement: 74, atRisk: false },
+    { id: "s3", alias: "Student Gamma", avgEngagement: 56, atRisk: true },
+];
+
+const initialCrossSessionPatterns: CrossSessionMemory[] = fallbackConfusionPatterns.map(p => ({
     patternId: `ptn-${p.id}`,
     topic: p.topic,
     occurrences: p.occurrences,
@@ -58,7 +68,7 @@ const initialCrossSessionPatterns: CrossSessionMemory[] = confusionPatterns.map(
     avgEngagementDrop: p.avgEngagementDrop
 }));
 
-const initialAtRiskProfiles: StudentAtRiskProfile[] = students
+const initialAtRiskProfiles: StudentAtRiskProfile[] = fallbackStudents
     .filter(s => s.atRisk)
     .map(s => ({
         studentId: s.id.toString(),

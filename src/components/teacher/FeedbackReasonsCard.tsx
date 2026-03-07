@@ -3,7 +3,6 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { feedbackReasons } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
 
@@ -17,8 +16,9 @@ const categoryColors: Record<string, { bg: string; text: string; label: string }
 
 export default function FeedbackReasonsCard() {
     const { data, isLoading } = useTeacherInsight();
-    const fallbackTakeaway = "76% of disengagement was related to pacing and clarity — not content difficulty itself. Students specifically requested more visual examples and slower delivery.";
+    const fallbackTakeaway = "Insufficient reflection data collected yet to determine precise takeaway.";
     const takeaway = data?.feedbackSummary || fallbackTakeaway;
+    const feedbackReasons: any[] = []; // Replaced mock array. Will wire to real StudentReflection metrics.
 
     return (
         <Reveal delay={0.2} duration={0.6}>

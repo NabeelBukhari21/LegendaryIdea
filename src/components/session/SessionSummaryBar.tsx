@@ -2,7 +2,6 @@
 
 import React from "react";
 import Card from "@/components/ui/Card";
-import { enrichedSlides } from "@/data/mockData";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
@@ -33,13 +32,11 @@ export default function SessionSummaryBar() {
         dipSlideLabel = analytics.length > 0 ? `S${dipId}: ${minAvg}%` : "N/A";
         peakSlideLabel = analytics.length > 0 ? `S${peakId}: ${maxAvg}%` : "N/A";
     } else {
-        avgEngagement = Math.round(enrichedSlides.reduce((s, sl) => s + sl.engagement, 0) / enrichedSlides.length);
-        avgConfusion = Math.round(enrichedSlides.reduce((s, sl) => s + sl.confusion, 0) / enrichedSlides.length);
-        totalDuration = enrichedSlides.reduce((s, sl) => s + sl.duration, 0);
-        const dipSlide = enrichedSlides.find((s) => s.status === "dip");
-        const peakSlide = enrichedSlides.find((s) => s.status === "peak");
-        dipSlideLabel = dipSlide ? `S${dipSlide.id}: ${dipSlide.engagement}%` : "N/A";
-        peakSlideLabel = peakSlide ? `S${peakSlide.id}: ${peakSlide.engagement}%` : "N/A";
+        avgEngagement = 0;
+        avgConfusion = 0;
+        totalDuration = 0;
+        dipSlideLabel = "N/A";
+        peakSlideLabel = "N/A";
     }
 
     const stats = [

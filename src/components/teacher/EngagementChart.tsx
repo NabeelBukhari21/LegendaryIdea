@@ -14,7 +14,6 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { engagementTimeline } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
@@ -43,9 +42,7 @@ export default function EngagementChart() {
     const { state: sessionState } = useSession();
 
     const hasSessionData = sessionState.timelineData.length > 1;
-    const chartData = hasSessionData
-        ? sessionState.timelineData
-        : engagementTimeline;
+    const chartData = sessionState.timelineData;
 
     return (
         <Reveal delay={0.2} duration={0.6}>

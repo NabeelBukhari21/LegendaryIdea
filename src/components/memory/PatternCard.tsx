@@ -3,10 +3,12 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { confusionPatterns } from "@/data/mockData";
 
 export default function PatternCard() {
-    const topPattern = confusionPatterns[0];
+    const fallbackConfusionPatterns = [
+        { id: "cp1", topic: "Chain Rule / Derivatives", occurrences: 3, sessions: ["Session 5 - Mar 6", "Session 3 - Feb 20", "Session 1 - Feb 6"], trend: "increasing" as const, avgEngagementDrop: 38, suggestedAction: "Start next session with a 5-minute visual recap of the Chain Rule." }
+    ];
+    const topPattern = fallbackConfusionPatterns[0];
 
     return (
         <Card className="animate-fade-in-up stagger-2 relative overflow-hidden">

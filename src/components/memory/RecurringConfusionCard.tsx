@@ -3,7 +3,6 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { confusionPatterns } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 import { useMemoryInsight } from "@/components/memory/MemoryInsightProvider";
 import { useBackboard } from "@/components/backboard/BackboardProvider";

@@ -12,7 +12,6 @@ import {
     Legend,
 } from "recharts";
 import Card from "@/components/ui/Card";
-import { trendData } from "@/data/mockData";
 
 interface CustomTooltipProps {
     active?: boolean;
@@ -37,6 +36,13 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export default function TrendChart() {
+    const fallbackTrendData = [
+        { session: "S1", engagement: 82, confusion: 15 },
+        { session: "S2", engagement: 85, confusion: 12 },
+        { session: "S3", engagement: 78, confusion: 22 },
+        { session: "S4", engagement: 74, confusion: 35 },
+        { session: "S5", engagement: 76, confusion: 28 },
+    ];
     return (
         <Card className="animate-fade-in-up stagger-1">
             <div className="mb-4">
@@ -46,7 +52,7 @@ export default function TrendChart() {
 
             <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                    <LineChart data={fallbackTrendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                         <XAxis dataKey="session" stroke="#64748b" fontSize={11} tickLine={false} />
                         <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `${v}%`} />

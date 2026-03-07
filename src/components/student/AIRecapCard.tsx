@@ -3,12 +3,19 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { aiRecap } from "@/data/mockData";
 import { Reveal, GlowPulse } from "@/components/motion/MotionKit";
 import { useStudentInsight } from "@/components/student/StudentInsightProvider";
 
 export default function AIRecapCard() {
     const { data, isLoading } = useStudentInsight();
+
+    const fallbackRecap = {
+        topic: "Topic Summaries",
+        poweredBy: "Gemini",
+        originalExplanation: "Waiting for session data to generate a recap.",
+        simplerExplanation: "Gemini will simplify complex topics here once the session concludes.",
+        keyTakeaways: [] as string[]
+    };
 
     return (
         <Reveal delay={0.3} duration={0.6}>
@@ -22,10 +29,10 @@ export default function AIRecapCard() {
                         </div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-foreground">Your Personalized Recap</h3>
-                            <p className="text-xs text-muted">A simpler way to understand {aiRecap.topic}</p>
+                            <p className="text-xs text-muted">A simpler way to understand {data?.recap ? "this topic" : fallbackRecap.topic}</p>
                         </div>
                         <Badge variant="success" size="md">
-                            <span className="mr-1">🤖</span> {aiRecap.poweredBy}
+                            <span className="mr-1">🤖</span> {fallbackRecap.poweredBy}
                         </Badge>
                     </div>
 
@@ -45,31 +52,33 @@ export default function AIRecapCard() {
                             {/* Original — collapsed/subtle */}
                             <div className="glass-card p-4 bg-white/[0.02] border-white/5 mb-3">
                                 <p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1.5">What the lecture said</p>
-                                <p className="text-xs text-muted leading-relaxed">{aiRecap.originalExplanation}</p>
+                                <p className="text-xs text-muted leading-relaxed">{fallbackRecap.originalExplanation}</p>
                             </div>
 
                             {/* Simpler — prominent */}
                             <div className="glass-card p-5 bg-success/5 border-success/15 mb-4">
                                 <p className="text-[10px] font-semibold text-success uppercase tracking-wider mb-2">✨ Here&apos;s a simpler way to think about it</p>
                                 <p className="text-sm text-foreground leading-relaxed">
-                                    {data?.explanation || aiRecap.simplerExplanation}
+                                    {data?.explanation || fallbackRecap.simplerExplanation}
                                 </p>
                             </div>
 
                             {/* Key Takeaways */}
-                            <div>
-                                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5">Key Takeaways</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    {aiRecap.keyTakeaways.map((t, i) => (
-                                        <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
-                                            <div className="w-5 h-5 rounded-full bg-success/15 ring-1 ring-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                <span className="text-success text-[10px]">✓</span>
+                            {fallbackRecap.keyTakeaways.length > 0 && (
+                                <div>
+                                    <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2.5">Key Takeaways</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        {fallbackRecap.keyTakeaways.map((t, i) => (
+                                            <div key={i} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                                                <div className="w-5 h-5 rounded-full bg-success/15 ring-1 ring-success/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <span className="text-success text-[10px]">✓</span>
+                                                </div>
+                                                <span className="text-xs text-muted leading-relaxed">{t}</span>
                                             </div>
-                                            <span className="text-xs text-muted leading-relaxed">{t}</span>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </>
                     )}
                 </div>

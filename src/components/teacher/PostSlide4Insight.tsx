@@ -3,12 +3,16 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { postSlide4Shifts } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
 
 export default function PostSlide4Insight() {
     const { data, isLoading } = useTeacherInsight();
+
+    const fallbackPostSlide4Shifts = [
+        { metric: "Engagement", before: 82, after: 44, unit: "%", trend: "negative" as "positive" | "negative" | "stable", interpretation: "Severe drop during theoretical explanation." },
+        { metric: "Confusion", before: 15, after: 68, unit: "%", trend: "negative" as "positive" | "negative" | "stable", interpretation: "Significant spike in reported confusion." },
+    ];
 
     const aiInsightTitle = data?.postSlide4?.insight || "Silver Lining";
     const aiInsightDescription = data?.postSlide4?.impact ||
@@ -36,7 +40,7 @@ export default function PostSlide4Insight() {
 
                     {/* Metrics grid */}
                     <div className="space-y-3">
-                        {postSlide4Shifts.map((shift, i) => (
+                        {fallbackPostSlide4Shifts.map((shift, i) => (
                             <div key={i} className="glass-card p-4 bg-white/[0.01] border-white/5">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm font-semibold text-foreground">{shift.metric}</span>

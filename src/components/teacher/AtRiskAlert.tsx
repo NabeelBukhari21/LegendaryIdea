@@ -4,7 +4,6 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { students } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useBackboard } from "@/components/backboard/BackboardProvider";
 import { useSession } from "@/components/session/SessionEngineProvider";
@@ -16,7 +15,7 @@ export default function AtRiskAlert() {
     const liveSummary = hasLive ? getClassSummary() : null;
     const lowEngStudents = hasLive
         ? liveSummary!.atRiskStudents.map(s => ({ id: s.id, alias: s.label, avgEngagement: s.score, atRisk: true, lastReflection: null }))
-        : students.filter((s) => s.avgEngagement < 70 && !s.atRisk);
+        : [];
 
     return (
         <Reveal delay={0.3} duration={0.6}>
@@ -102,11 +101,11 @@ export default function AtRiskAlert() {
                     {/* Class health summary */}
                     <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                         <div className="glass-card p-2 bg-success/5 border-success/10">
-                            <div className="text-sm font-bold text-success">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 80).length : students.filter(s => s.avgEngagement >= 80).length}</div>
+                            <div className="text-sm font-bold text-success">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 80).length : 0}</div>
                             <div className="text-[10px] text-muted">On Track</div>
                         </div>
                         <div className="glass-card p-2 bg-warning/5 border-warning/10">
-                            <div className="text-sm font-bold text-warning">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 60 && s.currentScore < 80).length : students.filter(s => s.avgEngagement >= 60 && s.avgEngagement < 80).length}</div>
+                            <div className="text-sm font-bold text-warning">{hasLive ? Array.from(sessionState.students.values()).filter(s => s.currentScore >= 60 && s.currentScore < 80).length : 0}</div>
                             <div className="text-[10px] text-muted">Emerging</div>
                         </div>
                         <div className="glass-card p-2 bg-danger/5 border-danger/10">

@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { workedExample } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useStudentInsight } from "@/components/student/StudentInsightProvider";
 
@@ -12,13 +11,20 @@ export default function WorkedExampleCard() {
     const { data, isLoading } = useStudentInsight();
 
     // Map AI data to component structure, or fallback to mock
+    const fallbackExample = {
+        title: "Waiting for AI Example",
+        topic: "Gemini will generate a relatable worked example here based on session performance.",
+        steps: [] as { label: string; content: string; highlight: boolean }[],
+        takeaway: "Waiting for example details."
+    };
+
     const stepsData = data?.workedExample ? data.workedExample.steps.map((stepStr, i) => ({
         label: `Step ${i + 1}`,
         content: stepStr,
         highlight: i === 1 // Just an arbitrary highlight for demo
-    })) : workedExample.steps;
+    })) : fallbackExample.steps;
 
-    const takeawayText = data?.workedExample?.answer || workedExample.takeaway;
+    const takeawayText = data?.workedExample?.answer || fallbackExample.takeaway;
 
     return (
         <Reveal delay={0.4} duration={0.6}>
@@ -32,10 +38,10 @@ export default function WorkedExampleCard() {
                         </div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-foreground">
-                                {data?.workedExample ? "Let's Solve This Together" : workedExample.title}
+                                {data?.workedExample ? "Let's Solve This Together" : fallbackExample.title}
                             </h3>
                             <p className="text-xs text-muted">
-                                {data?.workedExample?.problem || workedExample.topic}
+                                {data?.workedExample?.problem || fallbackExample.topic}
                             </p>
                         </div>
                         <Badge variant="default" size="md">Worked Example</Badge>
@@ -52,6 +58,11 @@ export default function WorkedExampleCard() {
                         <>
                             {/* Steps */}
                             <div className="space-y-2">
+                                {stepsData.length === 0 && (
+                                    <div className="glass-card p-4 text-center border-white/5">
+                                        <p className="text-sm text-muted">No steps generated yet.</p>
+                                    </div>
+                                )}
                                 {stepsData.map((step, i) => {
                                     const isExpanded = expandedStep === i;
                                     return (

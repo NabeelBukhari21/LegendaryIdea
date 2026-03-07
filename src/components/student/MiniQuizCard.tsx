@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { quizQuestions as defaultQuiz } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useStudentInsight } from "@/components/student/StudentInsightProvider";
 
@@ -12,6 +11,17 @@ export default function MiniQuizCard() {
     const [showResults, setShowResults] = useState<Record<string, boolean>>({});
     const { data, isLoading } = useStudentInsight();
 
+    const fallbackQuiz = [
+        {
+            id: "waiting",
+            question: "Waiting for session data to generate review questions.",
+            topic: "Review Topic",
+            options: ["Option A", "Option B", "Option C", "Option D"],
+            correctIndex: 0,
+            explanation: "Gemini will generate review questions here based on your comprehension gaps."
+        }
+    ];
+
     const quizQuestions = data?.reviewQuestions ? data.reviewQuestions.map((q, i) => ({
         id: `q${i}`,
         question: q.question,
@@ -19,7 +29,7 @@ export default function MiniQuizCard() {
         options: q.options,
         correctIndex: q.options.indexOf(q.correctAnswer) !== -1 ? q.options.indexOf(q.correctAnswer) : 0,
         explanation: q.explanation
-    })) : defaultQuiz;
+    })) : fallbackQuiz;
 
     const handleAnswer = (qId: string, optIndex: number) => {
         if (answers[qId] !== undefined && answers[qId] !== null) return;

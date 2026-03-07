@@ -4,9 +4,9 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { enrichedSlides, type EnrichedSlide } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 const statusConfig: Record<string, { variant: "success" | "warning" | "danger" | "info" | "default"; label: string }> = {
     strong: { variant: "success", label: "✦ Strong" },
@@ -21,14 +21,51 @@ interface Props {
 }
 
 export default function SlideDetailPanel({ selectedSlide }: Props) {
-    const slide = enrichedSlides.find((s) => s.id === selectedSlide) || enrichedSlides[0];
-    const cfg = statusConfig[slide.status];
-    const { data, isLoading } = useTeacherInsight();
+    const { state } = useSession();
+    const { data: insightData, isLoading: isInsightLoading } = useTeacherInsight();
 
-    // If we're on Slide 4, use the live Gemini recommendation (if available)
-    const isLiveSlide = selectedSlide === 4;
-    const recommendationText = isLiveSlide && data?.recommendation?.title
-        ? `${data.recommendation.title}: ${data.recommendation.description}`
+    const realSlide = state.slides.find(s => s.id === selectedSlide);
+    const a = state.slideAnalytics.get(selectedSlide);
+
+    const fallbackSlide = {
+        id: selectedSlide || 1,
+        title: "Awaiting Session Data",
+        topic: "Topic",
+        engagement: 0,
+        confusion: 0,
+        duration: 0,
+        timeRange: "00:00 - 00:00",
+        status: "moderate" as "moderate" | "dip" | "peak" | "recovery" | "strong",
+        transcript: "Recording transcript will appear here.",
+        feedbackThemes: [] as string[],
+        teacherNote: "Waiting for session generation...",
+        studentNote: "Waiting for student feedback...",
+        recommendation: "Gemini will generate recommendations post-session.",
+        marker: undefined as { type: string; label: string } | undefined
+    };
+
+    const slide = realSlide ? {
+        id: realSlide.id,
+        title: realSlide.title,
+        topic: realSlide.title,
+        engagement: a?.avgEngagement ?? 0,
+        confusion: a ? Math.round((a.states.confused / Math.max(1, a.eventCount)) * 100) : 0,
+        duration: realSlide.durationMin,
+        timeRange: "Live", // In a real app, track start/end times per slide
+        status: (a?.avgEngagement ?? 0) < 60 ? "dip" as const : (a?.avgEngagement ?? 0) >= 80 ? "peak" as const : "moderate" as const,
+        transcript: "Recording transcript will appear here.",
+        feedbackThemes: [] as string[],
+        teacherNote: "Waiting for session generation...",
+        studentNote: "Waiting for student feedback...",
+        recommendation: "Gemini will generate recommendations post-session.",
+        marker: undefined as { type: string, label: string } | undefined
+    } : fallbackSlide;
+
+    const cfg = statusConfig[slide.status] || statusConfig.moderate;
+
+    const isLiveSlide = realSlide !== undefined;
+    const recommendationText = isLiveSlide && insightData?.recommendation?.title
+        ? `${insightData.recommendation.title}: ${insightData.recommendation.description}`
         : slide.recommendation;
 
     return (
@@ -156,7 +193,7 @@ export default function SlideDetailPanel({ selectedSlide }: Props) {
                                 {!isLiveSlide && <Badge size="sm">Gemini</Badge>}
                             </div>
 
-                            {isLiveSlide && isLoading ? (
+                            {isLiveSlide && isInsightLoading ? (
                                 <div className="animate-pulse space-y-2 mt-2">
                                     <div className="h-4 bg-white/10 rounded w-full" />
                                     <div className="h-4 bg-white/10 rounded w-3/4" />

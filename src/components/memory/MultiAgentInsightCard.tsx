@@ -4,7 +4,6 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { multiAgentInsights } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/motion/MotionKit";
 
 const colorMap: Record<string, { bg: string; ring: string; text: string; fill: string }> = {
@@ -14,6 +13,11 @@ const colorMap: Record<string, { bg: string; ring: string; text: string; fill: s
 };
 
 export default function MultiAgentInsightCard() {
+    const fallbackMultiAgentInsights = [
+        { agent: "MediaPipe Vision", role: "Real-time tracking", confidence: 94, insight: "Detected sustained head-down behavior and low eye openness during Slides 4 and 5.", icon: "🎥", color: "accent" as const },
+        { agent: "Gemini Intelligence", role: "Content analysis", confidence: 88, insight: "Identified theoretical density peak on Slide 4 without sufficient visual examples.", icon: "✨", color: "success" as const },
+        { agent: "Backboard Memory", role: "Cross-session patterns", confidence: 92, insight: "Correlated current drop with similar dips in Session 2 and Session 3.", icon: "🧠", color: "warning" as const },
+    ];
     return (
         <Reveal delay={0.2} duration={0.6}>
             <Card className="relative overflow-hidden" glow>
@@ -32,7 +36,7 @@ export default function MultiAgentInsightCard() {
 
                     <StaggerContainer delay={0.3} stagger={0.1}>
                         <div className="space-y-3">
-                            {multiAgentInsights.map((agent) => {
+                            {fallbackMultiAgentInsights.map((agent) => {
                                 const cm = colorMap[agent.color];
                                 return (
                                     <StaggerItem key={agent.agent}>

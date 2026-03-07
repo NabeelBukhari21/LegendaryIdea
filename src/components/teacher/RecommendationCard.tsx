@@ -4,7 +4,6 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { teacherRecommendation } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
 import { useBackboard } from "@/components/backboard/BackboardProvider";
@@ -17,19 +16,19 @@ const typeConfig: Record<string, { icon: string; color: string; bg: string }> = 
 };
 
 export default function RecommendationCard() {
-    const rec = teacherRecommendation;
-    const config = typeConfig[rec.type];
     const { data, isLoading } = useTeacherInsight();
     const { isProcessing, activeTeacherRecommendations } = useBackboard();
 
-    const titleText = data?.recommendation?.title || rec.title;
-    const descriptionText = data?.recommendation?.description || rec.description;
-    const detailedSteps = data?.recommendation?.steps || [
-        "Break Slide 4 into two 7-minute segments",
-        "Add a visual walkthrough before formal chain rule",
-        "Insert a 2-minute pause for student questions",
-        "Use color-coded math notation for clarity",
-    ];
+    // If no real data from Gemini, provide a neutral empty state fallback (not mockData)
+    const fallbackRec = { type: "content", confidence: 0, basedOn: "Waiting for insights", title: "Analyzing Session Data", description: "Gemini is analyzing session patterns to generate a teaching recommendation." };
+    const recType = data?.recommendation?.type || fallbackRec.type;
+    const config = typeConfig[recType] || typeConfig.content;
+
+    const titleText = data?.recommendation?.title || fallbackRec.title;
+    const descriptionText = data?.recommendation?.description || fallbackRec.description;
+    const detailedSteps = data?.recommendation?.steps || [];
+    const confidence = data?.recommendation?.confidence || fallbackRec.confidence;
+    const basedOn = data?.recommendation?.basedOn || fallbackRec.basedOn;
 
     const relatedData = [
         { label: "Student confusion reports", value: "43%", trend: "high" },
@@ -52,10 +51,10 @@ export default function RecommendationCard() {
                             <h3 className="font-bold text-foreground">AI Teaching Recommendation</h3>
                             <p className="text-xs text-muted">Generated from aggregated class data</p>
                         </div>
-                        <Badge variant="success">{rec.confidence}% confidence</Badge>
+                        {confidence > 0 && <Badge variant="success">{confidence}% confidence</Badge>}
                     </div>
 
-                    {isLoading ? (
+                    {isLoading || confidence === 0 ? (
                         <div className="animate-pulse space-y-4">
                             <div className="h-28 bg-white/5 rounded-xl border border-white/5" />
                             <div className="h-24 bg-white/5 rounded-xl border border-white/5" />
@@ -70,8 +69,8 @@ export default function RecommendationCard() {
 
                                 <div className="flex items-center gap-3">
                                     <span className="text-xs text-muted">Confidence</span>
-                                    <ProgressBar value={rec.confidence} size="sm" className="flex-1 max-w-32" />
-                                    <span className="text-xs font-bold text-success">{rec.confidence}%</span>
+                                    <ProgressBar value={confidence} size="sm" className="flex-1 max-w-32" />
+                                    <span className="text-xs font-bold text-success">{confidence}%</span>
                                 </div>
                             </div>
 
@@ -133,8 +132,8 @@ export default function RecommendationCard() {
                     )}
 
                     <div className="mt-3 flex items-center gap-2">
-                        <Badge>Gemini</Badge>
-                        <span className="text-[10px] text-muted">Based on: {rec.basedOn}</span>
+                        {confidence > 0 && <Badge>Gemini</Badge>}
+                        <span className="text-[10px] text-muted">{confidence > 0 ? `Based on: ${basedOn}` : "Provides recommendations once specific learning blockers are identified."}</span>
                     </div>
                 </div>
             </Card>

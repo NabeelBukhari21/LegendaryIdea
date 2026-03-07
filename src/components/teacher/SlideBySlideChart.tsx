@@ -14,7 +14,6 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { slideBarData } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
@@ -56,19 +55,17 @@ export default function SlideBySlideChart() {
     const { state } = useSession();
     const hasLive = state.totalEvents > 0;
 
-    // Build bar data from session engine if available
-    const data: BarItem[] = hasLive
-        ? state.slides.map(slide => {
-            const a = state.slideAnalytics.get(slide.id);
-            const eng = a?.avgEngagement ?? 0;
-            return {
-                slide: `S${slide.id}`,
-                engagement: eng,
-                fullLabel: slide.title,
-                isDip: eng > 0 && eng < 60,
-            };
-        })
-        : slideBarData;
+    // Build bar data from session engine strictly
+    const data: BarItem[] = state.slides.map(slide => {
+        const a = state.slideAnalytics.get(slide.id);
+        const eng = a?.avgEngagement ?? 0;
+        return {
+            slide: `S${slide.id}`,
+            engagement: eng,
+            fullLabel: slide.title,
+            isDip: eng > 0 && eng < 60,
+        };
+    });
 
     // Find lowest slide for badge
     const lowestLive = hasLive
@@ -91,10 +88,7 @@ export default function SlideBySlideChart() {
                             {lowestLive.slide}: {lowestLive.engagement}%
                         </Badge>
                     ) : !hasLive ? (
-                        <Badge variant="danger">
-                            <span className="w-2 h-2 rounded-full bg-danger animate-pulse-dot inline-block mr-1.5" />
-                            Slide 4: 45%
-                        </Badge>
+                        <Badge variant="info">Waiting for Start</Badge>
                     ) : (
                         <Badge variant="success">Live</Badge>
                     )}

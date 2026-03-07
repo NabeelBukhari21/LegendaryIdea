@@ -3,10 +3,16 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { focusMoments, dropOffMoments } from "@/data/mockData";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 
 export default function FocusMomentsCard() {
+    const fallbackFocusMoments = [
+        { slideId: 5, slideTitle: "Practical Example", engagement: 91, duration: "18 mins", insight: "Highest sustained focus." }
+    ];
+    const fallbackDropOffMoments = [
+        { slideId: 4, slideTitle: "Derivations", engagement: 42, duration: "14 mins", insight: "Attention wandered soon into the section." }
+    ];
+
     return (
         <StaggerContainer delay={0.2} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Strongest Focus */}
@@ -25,7 +31,7 @@ export default function FocusMomentsCard() {
                         </div>
 
                         <div className="space-y-2.5">
-                            {focusMoments.map((m) => (
+                            {fallbackFocusMoments.map((m) => (
                                 <div key={m.slideId} className="glass-card p-3 bg-success/5 border-success/10">
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-xs font-medium text-foreground">Slide {m.slideId}: {m.slideTitle}</span>
@@ -56,7 +62,7 @@ export default function FocusMomentsCard() {
                         </div>
 
                         <div className="space-y-2.5">
-                            {dropOffMoments.map((m) => (
+                            {fallbackDropOffMoments.map((m) => (
                                 <div key={m.slideId} className={`glass-card p-3 ${m.engagement < 60 ? "bg-danger/5 border-danger/10" : "bg-warning/5 border-warning/10"}`}>
                                     <div className="flex items-center justify-between mb-1">
                                         <span className="text-xs font-medium text-foreground">Slide {m.slideId}: {m.slideTitle}</span>

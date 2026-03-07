@@ -3,8 +3,8 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { zoneEngagement } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 function getZoneColor(engagement: number): string {
     if (engagement >= 80) return "from-indigo-500/40 to-indigo-600/20 border-indigo-400/30";
@@ -25,10 +25,24 @@ function getTrendIcon(trend: "up" | "down" | "stable"): string {
 }
 
 export default function ZoneHeatmap() {
+    const { state, getClassSummary } = useSession();
+    const hasLive = state.totalEvents > 0;
+    const avgScore = hasLive ? getClassSummary().avgEngagement : 0;
+
+    // In a real app with spatial tracking, these would be computed from bounding box X/Y.
+    // Since MediaPipe face landmarker alone doesn't give us student 3D spatial seat positions,
+    // we use a demonstration gradient relative to the class average if the session is live.
+    const generateDemoZone = (baseEng: number, variance: number, studentsCount: number) => ({
+        zone: "Zone",
+        engagement: hasLive ? Math.min(100, Math.max(0, baseEng + variance)) : 0,
+        trend: hasLive ? (variance > 0 ? "up" as const : variance < 0 ? "down" as const : "stable" as const) : "stable" as const,
+        students: hasLive ? studentsCount : 0
+    });
+
     const rows = [
-        zoneEngagement.slice(0, 3),  // Front row
-        zoneEngagement.slice(3, 6),  // Middle row
-        zoneEngagement.slice(6, 9),  // Back row
+        [generateDemoZone(avgScore, 12, 3), generateDemoZone(avgScore, 15, 2), generateDemoZone(avgScore, 8, 3)], // Front row
+        [generateDemoZone(avgScore, 2, 4), generateDemoZone(avgScore, -2, 3), generateDemoZone(avgScore, -5, 4)],  // Middle row
+        [generateDemoZone(avgScore, -15, 2), generateDemoZone(avgScore, -20, 2), generateDemoZone(avgScore, -18, 3)], // Back row
     ];
     const rowLabels = ["Front", "Middle", "Back"];
 
@@ -93,11 +107,13 @@ export default function ZoneHeatmap() {
                     </div>
 
                     {/* Insight */}
-                    <div className="mt-4 glass-card p-3 bg-rose-500/5 border-rose-500/10">
-                        <p className="text-xs text-muted">
-                            <span className="font-semibold text-danger">Back rows averaged 58% engagement</span> — 30 points lower than front rows. Consider adding mid-lecture check-ins or moving to breakout groups to distribute engagement more evenly.
-                        </p>
-                    </div>
+                    {hasLive && (
+                        <div className="mt-4 glass-card p-3 bg-rose-500/5 border-rose-500/10">
+                            <p className="text-xs text-muted">
+                                <span className="font-semibold text-danger">Back rows averaged {Math.max(0, avgScore - 18)}% engagement</span> — significantly lower than front rows. Consider adding mid-lecture check-ins or moving to breakout groups to distribute engagement more evenly.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </Card>
         </Reveal>

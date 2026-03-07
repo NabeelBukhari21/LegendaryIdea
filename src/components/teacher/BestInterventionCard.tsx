@@ -4,8 +4,8 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { bestIntervention } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useTeacherInsight } from "@/components/teacher/TeacherInsightProvider";
 
 const typeLabels: Record<string, { label: string; badge: "default" | "success" | "warning" | "danger" }> = {
     immediate: { label: "Apply Now", badge: "danger" },
@@ -20,7 +20,20 @@ const priorityStyles: Record<string, string> = {
 };
 
 export default function BestInterventionCard() {
-    const int = bestIntervention;
+    const { data } = useTeacherInsight();
+
+    // Fallback since Best Intervention is not currently provided by the backend prompt
+    const int = {
+        type: "immediate",
+        priority: "medium",
+        confidence: 0,
+        title: "Awaiting Session Insights",
+        description: "Gemini requires more session data to provide an intervention plan.",
+        estimatedTime: "N/A",
+        expectedImpact: "Waiting for sufficient data.",
+        steps: [],
+        evidence: []
+    };
     const typeInfo = typeLabels[int.type];
 
     return (
@@ -75,14 +88,18 @@ export default function BestInterventionCard() {
                     <div className="mb-4">
                         <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Action Steps</p>
                         <div className="space-y-2">
-                            {int.steps.map((step, i) => (
-                                <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
-                                    <div className="w-6 h-6 rounded-full bg-accent/15 ring-1 ring-accent/20 flex items-center justify-center text-xs font-bold text-accent-light flex-shrink-0 mt-0.5">
-                                        {i + 1}
+                            {int.steps.length === 0 ? (
+                                <p className="text-xs text-muted italic">Waiting for steps...</p>
+                            ) : (
+                                int.steps.map((step, i) => (
+                                    <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
+                                        <div className="w-6 h-6 rounded-full bg-accent/15 ring-1 ring-accent/20 flex items-center justify-center text-xs font-bold text-accent-light flex-shrink-0 mt-0.5">
+                                            {i + 1}
+                                        </div>
+                                        <span className="text-sm text-muted">{step}</span>
                                     </div>
-                                    <span className="text-sm text-muted">{step}</span>
-                                </div>
-                            ))}
+                                ))
+                            )}
                         </div>
                     </div>
 
@@ -90,12 +107,16 @@ export default function BestInterventionCard() {
                     <div>
                         <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Supporting Evidence</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {int.evidence.map((ev, i) => (
-                                <div key={i} className="flex items-start gap-2 text-xs text-muted">
-                                    <span className="text-success mt-0.5 flex-shrink-0">✓</span>
-                                    <span>{ev}</span>
-                                </div>
-                            ))}
+                            {int.evidence.length === 0 ? (
+                                <p className="text-xs text-muted italic">No evidence collected yet.</p>
+                            ) : (
+                                int.evidence.map((ev, i) => (
+                                    <div key={i} className="flex items-start gap-2 text-xs text-muted">
+                                        <span className="text-success mt-0.5 flex-shrink-0">✓</span>
+                                        <span>{ev}</span>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 

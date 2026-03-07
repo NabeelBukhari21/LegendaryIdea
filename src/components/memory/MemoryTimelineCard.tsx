@@ -3,7 +3,6 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { memoryTimeline } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 
 const typeConfig: Record<string, { color: string; bg: string; ring: string; icon: string; label: string }> = {
@@ -15,6 +14,17 @@ const typeConfig: Record<string, { color: string; bg: string; ring: string; icon
 };
 
 export default function MemoryTimelineCard() {
+    // Ideally this comes from useMemoryInsight(), falling back to empty wait state for now
+    const timelineEvents = [] as Array<{
+        id: string;
+        date: string;
+        session: string;
+        type: "pattern-detected" | "intervention" | "improvement" | "alert" | "milestone";
+        event: string;
+        detail: string;
+        impact?: string;
+    }>;
+
     return (
         <Reveal delay={0.2} duration={0.6}>
             <Card className="relative overflow-hidden">
@@ -26,14 +36,18 @@ export default function MemoryTimelineCard() {
                             <h3 className="text-lg font-bold text-foreground">Memory Timeline</h3>
                             <p className="text-xs text-muted">How InsightBoard learned across sessions</p>
                         </div>
-                        <Badge variant="default">{memoryTimeline.length} events</Badge>
+                        <Badge variant="default">{timelineEvents.length} events</Badge>
                     </div>
 
                     <StaggerContainer delay={0.3} stagger={0.1}>
                         <div className="space-y-0">
-                            {memoryTimeline.map((event, i) => {
+                            {timelineEvents.length === 0 ? (
+                                <div className="glass-card p-4 bg-white/[0.01] border-white/5 text-center">
+                                    <p className="text-sm text-muted">Awaiting historical session data...</p>
+                                </div>
+                            ) : timelineEvents.map((event, i) => {
                                 const cfg = typeConfig[event.type];
-                                const isLast = i === memoryTimeline.length - 1;
+                                const isLast = i === timelineEvents.length - 1;
                                 return (
                                     <StaggerItem key={event.id}>
                                         <div className="relative">

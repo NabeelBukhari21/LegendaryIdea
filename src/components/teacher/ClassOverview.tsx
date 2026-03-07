@@ -3,34 +3,28 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { session as mockSession, students as mockStudents } from "@/data/mockData";
 import { StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
 export default function ClassOverview() {
     const { state, getClassSummary } = useSession();
 
-    // If a live session has data, use it; otherwise fall back to mock
     const hasLiveData = state.isActive || state.totalEvents > 0;
     const summary = hasLiveData ? getClassSummary() : null;
 
-    const avgEngagement = summary
-        ? summary.avgEngagement
-        : Math.round(mockSession.reduce((sum, s) => sum + s.engagement, 0) / mockSession.length);
+    const avgEngagement = summary ? summary.avgEngagement : 0;
 
     const lowestSlide = summary?.weakestSlide
         ? { id: summary.weakestSlide.id, title: summary.weakestSlide.title, engagement: (() => { const a = state.slideAnalytics.get(summary.weakestSlide!.id); return a?.avgEngagement ?? 0; })() }
-        : (() => { const s = mockSession.reduce((min, s) => (s.engagement < min.engagement ? s : min), mockSession[0]); return { id: s.id, title: s.title, engagement: s.engagement }; })();
+        : { id: 0, title: "Waiting for slide", engagement: 0 };
 
     const highestSlide = summary?.strongestSlide
         ? { id: summary.strongestSlide.id, title: summary.strongestSlide.title, engagement: (() => { const a = state.slideAnalytics.get(summary.strongestSlide!.id); return a?.avgEngagement ?? 0; })() }
-        : (() => { const s = mockSession.reduce((max, s) => (s.engagement > max.engagement ? s : max), mockSession[0]); return { id: s.id, title: s.title, engagement: s.engagement }; })();
+        : { id: 0, title: "Waiting for slide", engagement: 0 };
 
-    const activeStudents = summary ? summary.studentCount : mockStudents.length;
-    const atRiskCount = summary ? summary.atRiskStudents.length : mockStudents.filter(s => s.atRisk).length;
-    const sessionDuration = hasLiveData
-        ? Math.round((Date.now() - state.startTime) / 60000)
-        : mockSession.reduce((sum, s) => sum + s.duration, 0);
+    const activeStudents = summary ? summary.studentCount : 0;
+    const atRiskCount = summary ? summary.atRiskStudents.length : 0;
+    const sessionDuration = hasLiveData ? Math.round((Date.now() - state.startTime) / 60000) : 0;
 
     const stats = [
         {

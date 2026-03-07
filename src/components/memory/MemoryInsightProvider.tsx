@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { confusionPatterns } from "@/data/mockData";
 
 interface MemoryInsightData {
     classPattern: {
@@ -23,13 +22,34 @@ interface MemoryInsightContextType {
 
 const MemoryInsightContext = createContext<MemoryInsightContextType | undefined>(undefined);
 
+const fallbackConfusionPatterns = [
+    {
+        id: "cp1",
+        topic: "Chain Rule / Derivatives",
+        occurrences: 3,
+        sessions: ["Session 5 - Mar 6", "Session 3 - Feb 20", "Session 1 - Feb 6"],
+        trend: "increasing",
+        avgEngagementDrop: 38,
+        suggestedAction: "Add prerequisite math refresher before this topic. Consider a 5-min calculus warmup slide.",
+    },
+    {
+        id: "cp2",
+        topic: "Matrix Multiplication in Layers",
+        occurrences: 2,
+        sessions: ["Session 4 - Feb 27", "Session 2 - Feb 13"],
+        trend: "stable",
+        avgEngagementDrop: 22,
+        suggestedAction: "Use visual matrix animations. Students respond well to color-coded row×column demonstrations.",
+    },
+];
+
 const fallbackData: MemoryInsightData = {
     classPattern: {
         quote: "Theory-heavy slides without visual support consistently reduce engagement by 30–40% across all sessions",
         detail: "This class responds strongly to visual, example-based teaching and struggles when content shifts to abstract mathematical notation without adequate scaffolding. This is not a reflection of student capability — it's a content delivery pattern.",
         actionable: "Lead with visual examples to set context, then introduce formal notation. The class demonstrated they can handle complexity when scaffolded properly (Slide 6: 91% after Slide 4's 45%)."
     },
-    recurringConfusion: confusionPatterns.map(p => ({
+    recurringConfusion: fallbackConfusionPatterns.map(p => ({
         topic: p.topic,
         suggestedAction: p.suggestedAction
     }))
@@ -52,7 +72,7 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
                         type: "memory-insight",
                         payload: {
                             sessionCount: 5,
-                            recurringTopics: confusionPatterns.map(p => p.topic)
+                            recurringTopics: fallbackConfusionPatterns.map(p => p.topic)
                         }
                     })
                 });

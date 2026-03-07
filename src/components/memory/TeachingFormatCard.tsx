@@ -3,12 +3,42 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { teachingFormats } from "@/data/mockData";
 import { StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/motion/MotionKit";
 
 export default function TeachingFormatCard() {
-    const best = teachingFormats.filter((f) => f.verdict === "best" || f.verdict === "good");
-    const weak = teachingFormats.filter((f) => f.verdict === "weak" || f.verdict === "worst");
+    // In a real app, this comes from an AI insight analysis API
+    const fallbackTeachingFormats = [
+        {
+            format: "Real-World Examples",
+            avgEngagement: 89,
+            trend: "up" as const,
+            sessions: 5,
+            icon: "🌍",
+            examples: ["Session 5 Slide 6: +46pts recovery", "Session 3 Slide 5: +28pts recovery"],
+            verdict: "best" as "best" | "good" | "weak" | "worst",
+        },
+        {
+            format: "Interactive Polls / Demos",
+            avgEngagement: 83,
+            trend: "up" as const,
+            sessions: 4,
+            icon: "🎯",
+            examples: ["Session 5 Slide 2: sustained 82%", "Session 4 Slide 3: +15pts boost"],
+            verdict: "good" as "best" | "good" | "weak" | "worst",
+        },
+        {
+            format: "Formal Math Proofs",
+            avgEngagement: 48,
+            trend: "down" as const,
+            sessions: 5,
+            icon: "∑",
+            examples: ["Session 5 Slide 4: -38pts drop", "Session 3 Slide 4: -42pts drop"],
+            verdict: "worst" as "best" | "good" | "weak" | "worst",
+        }
+    ];
+
+    const best = fallbackTeachingFormats.filter((f) => f.verdict === "best" || f.verdict === "good");
+    const weak = fallbackTeachingFormats.filter((f) => f.verdict === "weak" || f.verdict === "worst");
 
     const verdictStyle: Record<string, { badge: "success" | "warning" | "danger" | "default"; label: string }> = {
         best: { badge: "success", label: "★ Best" },

@@ -7,6 +7,9 @@ interface GeminiTeacherInsightData {
         title: string;
         description: string;
         steps: string[];
+        type?: string;
+        confidence?: number;
+        basedOn?: string;
     };
     postSlide4: {
         insight: string;

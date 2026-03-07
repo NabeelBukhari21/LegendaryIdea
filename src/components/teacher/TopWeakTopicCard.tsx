@@ -3,10 +3,24 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { topWeakTopic } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 export default function TopWeakTopicCard() {
+    const { state } = useSession();
+    const hasLive = state.totalEvents > 0;
+
+    // Fallback empty state for now until cross-session insights are wired to a DB
+    const topWeakTopic = {
+        topic: "Waiting for historical session data",
+        rootCause: "Requires multiple completed sessions to identify recurring weak topics.",
+        occurrences: 0,
+        avgDrop: 0,
+        affectedPercentage: 0,
+        historySessions: [] as { session: string; drop: number }[],
+        prerequisite: "None"
+    };
+
     return (
         <Reveal delay={0.4} duration={0.6}>
             <Card className="relative overflow-hidden">
@@ -70,7 +84,9 @@ export default function TopWeakTopicCard() {
                                 </div>
                             ))}
                         </div>
-                        <p className="text-[10px] text-danger mt-2">⚠ Trend is increasing — drops are getting worse each session</p>
+                        {topWeakTopic.historySessions.length > 0 && (
+                            <p className="text-[10px] text-danger mt-2">⚠ Trend is increasing — drops are getting worse each session</p>
+                        )}
                     </div>
 
                     {/* Prerequisite note */}

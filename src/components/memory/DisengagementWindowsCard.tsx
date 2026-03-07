@@ -3,10 +3,13 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { disengagementWindows } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 
 export default function DisengagementWindowsCard() {
+    const fallbackDisengagementWindows = [
+        { id: "dw1", window: "30-45 mins", avgDrop: 32, sessions: ["S5", "S4", "S2"], triggerType: "Sustained Theoretical Content", description: "Engagement drops below 60% when theoretical explanations exceed 12 minutes without interactive elements." },
+        { id: "dw2", window: "First 5 mins", avgDrop: 15, sessions: ["S3", "S1"], triggerType: "Delayed Start", description: "Students take longer to settle when the session starts with administrative/housekeeping slides." },
+    ];
     return (
         <Reveal delay={0.3} duration={0.6}>
             <Card className="relative overflow-hidden">
@@ -22,7 +25,7 @@ export default function DisengagementWindowsCard() {
 
                     <StaggerContainer delay={0.4}>
                         <div className="space-y-3">
-                            {disengagementWindows.map((dw, index) => (
+                            {fallbackDisengagementWindows.map((dw, index) => (
                                 <StaggerItem key={dw.id}>
                                     <div className={`glass-card p-4 transition-all hover:bg-white/[0.02] ${dw.avgDrop >= 30 ? "border-danger/10 bg-danger/[0.03]" : "border-white/5"
                                         }`}>

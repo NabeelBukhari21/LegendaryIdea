@@ -3,9 +3,13 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { auditLog } from "@/data/mockData";
 
 export default function AuditLog() {
+    // In a real app this is fetched from the server.
+    const fallbackAuditLog = [
+        { id: "al1", timestamp: new Date(Date.now() - 3600000).toISOString(), action: "Session End Detected", dataType: "Telemetry", retention: "Standard", status: "retained" as const },
+        { id: "al2", timestamp: new Date(Date.now() - 7200000).toISOString(), action: "Live Demo Active", dataType: "Video Feed", retention: "Discarded", status: "deleted" as const },
+    ];
     const formatDate = (dateStr: string) => {
         const d = new Date(dateStr);
         return d.toLocaleDateString("en-US", {
@@ -49,7 +53,7 @@ export default function AuditLog() {
                         </tr>
                     </thead>
                     <tbody>
-                        {auditLog.map((event) => (
+                        {fallbackAuditLog.map((event) => (
                             <tr key={event.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
                                 <td className="py-3 px-3 text-xs text-muted whitespace-nowrap">{formatDate(event.timestamp)}</td>
                                 <td className="py-3 px-3 text-xs text-foreground">{event.action}</td>

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
-import { session } from "@/data/mockData";
 
 export default function SlideTimeline() {
     const [selectedSlide, setSelectedSlide] = useState<number | null>(4);
@@ -25,7 +24,7 @@ export default function SlideTimeline() {
                 <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-white/5" />
 
                 <div className="space-y-3">
-                    {session.map((slide) => {
+                    {([] as any[]).map((slide) => {
                         const isSelected = selectedSlide === slide.id;
                         const isDip = slide.engagement < 60;
 
@@ -33,20 +32,20 @@ export default function SlideTimeline() {
                             <div
                                 key={slide.id}
                                 className={`relative flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300 ${isSelected
-                                        ? "bg-accent/10 border border-accent/20"
-                                        : isDip
-                                            ? "bg-danger/5 border border-danger/10 hover:bg-danger/8"
-                                            : "hover:bg-white/[0.03] border border-transparent"
+                                    ? "bg-accent/10 border border-accent/20"
+                                    : isDip
+                                        ? "bg-danger/5 border border-danger/10 hover:bg-danger/8"
+                                        : "hover:bg-white/[0.03] border border-transparent"
                                     }`}
                                 onClick={() => setSelectedSlide(isSelected ? null : slide.id)}
                             >
                                 {/* Timeline dot */}
                                 <div
                                     className={`relative z-10 w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 transition-all ${isDip
-                                            ? "bg-danger/20 text-danger border border-danger/30"
-                                            : isSelected
-                                                ? "bg-accent/20 text-accent-light border border-accent/30"
-                                                : "bg-white/5 text-muted border border-white/10"
+                                        ? "bg-danger/20 text-danger border border-danger/30"
+                                        : isSelected
+                                            ? "bg-accent/20 text-accent-light border border-accent/30"
+                                            : "bg-white/5 text-muted border border-white/10"
                                         }`}
                                 >
                                     {slide.id}

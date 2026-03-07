@@ -3,9 +3,12 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { confusionPatterns } from "@/data/mockData";
 
 export default function ConfusionPatterns() {
+    const fallbackConfusionPatterns = [
+        { id: "cp1", topic: "Chain Rule / Derivatives", occurrences: 3, sessions: ["Session 5", "Session 3", "Session 1"], trend: "increasing" as "increasing" | "stable" | "decreasing", avgEngagementDrop: 38, suggestedAction: "Start next session with a visual recap." },
+        { id: "cp2", topic: "Matrix Multiplication in Layers", occurrences: 2, sessions: ["Session 4", "Session 2"], trend: "stable" as "increasing" | "stable" | "decreasing", avgEngagementDrop: 22, suggestedAction: "Provide a cheat sheet on dimensions." }
+    ];
     return (
         <Card className="animate-fade-in-up">
             <div className="flex items-center justify-between mb-6">
@@ -13,11 +16,11 @@ export default function ConfusionPatterns() {
                     <h3 className="text-lg font-bold text-foreground">Recurring Confusion Patterns</h3>
                     <p className="text-sm text-muted">Aggregated across past sessions</p>
                 </div>
-                <Badge variant="warning">{confusionPatterns.length} patterns</Badge>
+                <Badge variant="warning">{fallbackConfusionPatterns.length} patterns</Badge>
             </div>
 
             <div className="space-y-4">
-                {confusionPatterns.map((pattern) => (
+                {fallbackConfusionPatterns.map((pattern) => (
                     <div key={pattern.id} className="glass-card p-5 bg-white/[0.02] border-white/5">
                         <div className="flex items-start justify-between mb-3">
                             <div>

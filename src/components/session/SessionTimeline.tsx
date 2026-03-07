@@ -2,9 +2,26 @@
 
 import React from "react";
 import Badge from "@/components/ui/Badge";
-import { enrichedSlides, type EnrichedSlide } from "@/data/mockData";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
+
+export interface EnrichedSlide {
+    id: number;
+    title: string;
+    topic: string;
+    engagement: number;
+    confusion: number;
+    duration: number;
+    timeRange: string;
+    status: "strong" | "moderate" | "dip" | "recovery" | "peak";
+    notes: string;
+    marker?: { type: "dip" | "spike" | "recovery" | "peak"; label: string };
+    transcript?: string;
+    feedbackThemes?: string[];
+    teacherNote?: string;
+    studentNote?: string;
+    recommendation?: string;
+}
 
 const statusConfig: Record<string, { color: string; bg: string; border: string; ring: string; label: string }> = {
     strong: { color: "text-success", bg: "bg-success/15", border: "border-success/20", ring: "ring-success/20", label: "Strong" },
@@ -53,7 +70,15 @@ export default function SessionTimeline({ selectedSlide, onSelectSlide }: Props)
                 marker: isDip ? { type: "dip" as const, label: `Dip: ${eng}%` } : isPeak ? { type: "peak" as const, label: `Peak: ${eng}%` } : isRecovery ? { type: "recovery" as const, label: "Recovery" } : undefined,
             } as unknown as EnrichedSlide;
         })
-        : enrichedSlides;
+        : [];
+
+    if (slideItems.length === 0) {
+        return (
+            <div className="glass-card p-6 text-center border-white/5">
+                <p className="text-sm text-muted">Awaiting session data to build the timeline...</p>
+            </div>
+        );
+    }
 
     return (
         <StaggerContainer delay={0.4} stagger={0.06} className="space-y-0">

@@ -15,7 +15,6 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { trendData, atRiskTrend } from "@/data/mockData";
 import { Reveal, StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 
 interface TrendTooltipProps {
@@ -41,6 +40,21 @@ function TrendTooltip({ active, payload, label }: TrendTooltipProps) {
 }
 
 export default function CrossSessionTrend() {
+    const fallbackTrendData = [
+        { session: "S1", engagement: 82, confusion: 15 },
+        { session: "S2", engagement: 85, confusion: 12 },
+        { session: "S3", engagement: 78, confusion: 22 },
+        { session: "S4", engagement: 74, confusion: 35 },
+        { session: "S5", engagement: 76, confusion: 28 },
+    ];
+    const fallbackAtRiskTrend = [
+        { session: "S1", atRiskCount: 2, monitoringCount: 4 },
+        { session: "S2", atRiskCount: 2, monitoringCount: 3 },
+        { session: "S3", atRiskCount: 3, monitoringCount: 5 },
+        { session: "S4", atRiskCount: 4, monitoringCount: 6 },
+        { session: "S5", atRiskCount: 4, monitoringCount: 7 },
+    ];
+
     return (
         <StaggerContainer delay={0.4} stagger={0.1}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -56,7 +70,7 @@ export default function CrossSessionTrend() {
                         </div>
                         <div className="h-52">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={trendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                <LineChart data={fallbackTrendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                                     <XAxis dataKey="session" stroke="#64748b" fontSize={10} tickLine={false} />
                                     <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
@@ -83,7 +97,7 @@ export default function CrossSessionTrend() {
                         </div>
                         <div className="h-52">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={atRiskTrend} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                                <BarChart data={fallbackAtRiskTrend} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                                     <XAxis dataKey="session" stroke="#64748b" fontSize={10} tickLine={false} />
                                     <YAxis domain={[0, 5]} stroke="#64748b" fontSize={10} tickLine={false} />

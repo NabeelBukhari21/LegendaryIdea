@@ -3,12 +3,13 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { session, reflections, aiRecap } from "@/data/mockData";
 
 export default function SlideDetail() {
-    // Show detail for slide 4 (the dip slide)
-    const slide = session.find((s) => s.id === 4)!;
-    const reflection = reflections.find((r) => r.slideId === 4);
+    // Ideally this comes from useSession() or an insight provider, using empty fallback state for now
+    const fallbackSlide = { id: 4, title: "Awaiting Session...", topic: "Topic...", duration: 0, engagement: 0, notes: "Wait for session summary." };
+    const slide = fallbackSlide;
+    const reflection = null as { reason: string } | null;
+    const aiRecap = { simplerExplanation: "Gemini will generate a simpler explanation here once the session concludes.", keyTakeaways: [] };
 
     return (
         <Card className="animate-fade-in-up stagger-2">

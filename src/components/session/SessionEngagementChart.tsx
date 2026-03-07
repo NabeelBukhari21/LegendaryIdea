@@ -14,7 +14,6 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { engagementTimeline, session } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
@@ -26,7 +25,8 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
     if (active && payload && payload.length) {
         const d = payload[0].payload;
-        const slideInfo = d.slide ? session.find((s) => s.id === d.slide) : undefined;
+        // In a real app we'd fetch the slide dynamically
+        const slideInfo = undefined as { topic: string; title: string } | undefined;
         return (
             <div className="glass-card p-3 text-xs border border-accent/20">
                 <p className="text-foreground font-semibold">{slideInfo?.title || (d.slide ? `Slide ${d.slide}` : "Session")}</p>
@@ -52,7 +52,7 @@ const slideBoundaries = [
 export default function SessionEngagementChart() {
     const { state: sessionState } = useSession();
     const hasLive = sessionState.timelineData.length > 1;
-    const chartData = hasLive ? sessionState.timelineData : engagementTimeline;
+    const chartData = hasLive ? sessionState.timelineData : [];
 
     return (
         <Reveal delay={0.2} duration={0.6}>

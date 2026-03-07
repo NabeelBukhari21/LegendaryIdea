@@ -14,19 +14,19 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { engagementTimeline, session } from "@/data/mockData";
 import { Reveal, AnimatedCounter } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
 
 interface CustomTooltipProps {
     active?: boolean;
     payload?: Array<{ value: number; payload: { time: string; slide?: number; engagement: number } }>;
+    sessionState?: any;
 }
 
-function CustomTooltip({ active, payload }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, sessionState }: CustomTooltipProps) {
     if (active && payload && payload.length) {
         const d = payload[0].payload;
-        const slideInfo = d.slide ? session.find((s) => s.id === d.slide) : undefined;
+        const slideInfo = sessionState?.slides?.find((s: any) => s.id === d.slide);
         return (
             <div className="glass-card p-3 text-xs border border-accent/20 max-w-[220px]">
                 <p className="text-foreground font-semibold">{slideInfo?.title || (d.slide ? `Slide ${d.slide}` : "Session")}</p>
@@ -43,11 +43,9 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export default function EngagementSummary() {
     const { state: sessionState } = useSession();
     const hasLive = sessionState.timelineData.length > 1;
-    const chartData = hasLive ? sessionState.timelineData : engagementTimeline;
+    const chartData = sessionState.timelineData;
 
-    const avgEngagement = hasLive ? sessionState.classAvgEngagement : Math.round(
-        session.reduce((sum, s) => sum + s.engagement, 0) / session.length
-    );
+    const avgEngagement = hasLive ? sessionState.classAvgEngagement : 0;
 
     return (
         <Reveal delay={0.1} duration={0.6}>
@@ -80,7 +78,7 @@ export default function EngagementSummary() {
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                             <XAxis dataKey="time" stroke="#64748b" fontSize={10} tickLine={false} interval={4} />
                             <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip content={<CustomTooltip sessionState={sessionState} />} />
                             <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="6 4" strokeOpacity={0.3} />
                             <ReferenceArea x1="30:00" x2="42:00" fill="#f43f5e" fillOpacity={0.05} stroke="#f43f5e" strokeOpacity={0.1} />
                             <Area type="monotone" dataKey="engagement" stroke="#818cf8" strokeWidth={2.5} fill="url(#studentEngGrad)" dot={false} activeDot={{ r: 5, fill: "#818cf8", stroke: "#0a0e1a", strokeWidth: 2 }} animationDuration={1500} animationEasing="ease-out" />

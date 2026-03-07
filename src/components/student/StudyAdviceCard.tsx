@@ -3,7 +3,6 @@
 import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { studyAdvice } from "@/data/mockData";
 import { Reveal } from "@/components/motion/MotionKit";
 
 const typeStyles: Record<string, { bg: string; ring: string; badgeVariant: "success" | "warning" | "default"; badgeLabel: string }> = {
@@ -28,6 +27,12 @@ const typeStyles: Record<string, { bg: string; ring: string; badgeVariant: "succ
 };
 
 export default function StudyAdviceCard() {
+    const fallbackStudyAdvice = [
+        { type: "strength", title: "Visual Processing", description: "You showed 92% engagement during diagram-heavy segments.", actionable: "Seek out visual summaries when reviewing.", icon: "👁️" },
+        { type: "improvement", title: "Theoretical Endurance", description: "Your focus drops after 10+ mins of text.", actionable: "Take micro-breaks during heavy reading.", icon: "🔋" },
+        { type: "tip", title: "Active Recall", description: "You haven't used practice questions recently.", actionable: "Try the mini-quiz generator below.", icon: "🧠" },
+    ] as const;
+
     return (
         <Reveal delay={0.6} duration={0.6}>
             <Card className="relative overflow-hidden">
@@ -46,7 +51,7 @@ export default function StudyAdviceCard() {
                     </div>
 
                     <div className="space-y-3">
-                        {studyAdvice.map((advice, i) => {
+                        {fallbackStudyAdvice.map((advice, i) => {
                             const styles = typeStyles[advice.type];
                             return (
                                 <div key={i} className={`glass-card p-4 ${styles.bg}`}>

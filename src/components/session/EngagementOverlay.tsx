@@ -14,7 +14,6 @@ import {
 } from "recharts";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import { engagementTimeline } from "@/data/mockData";
 
 interface CustomTooltipProps {
     active?: boolean;
@@ -49,7 +48,7 @@ export default function EngagementOverlay() {
 
             <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={engagementTimeline} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                    <AreaChart data={[] as any[]} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                         <defs>
                             <linearGradient id="sessionGrad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />

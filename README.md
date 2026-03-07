@@ -1,0 +1,2 @@
+# LegendaryIdea
+App for HackCanada!

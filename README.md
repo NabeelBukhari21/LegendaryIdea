@@ -182,3 +182,221 @@ npm run build
 ---
 
 *Built for the Google Antigravity Hackathon 2026.*
+
+
+### WHAT TO DO DO NEXT:
+Project Handover — InsightBoard AI
+
+We’ve built the app up to the Gemini integration stage. The project is a privacy-first classroom learning copilot built as a Next.js App Router web app with TypeScript, Tailwind CSS, and Recharts.
+
+What’s already implemented
+
+Core app structure
+
+The app already has these main pages working:
+	•	Landing page
+	•	Teacher dashboard
+	•	Student dashboard
+	•	Session timeline page
+	•	Memory insights page
+	•	Privacy and audit page
+
+Current product flow
+
+The app is designed around this loop:
+
+detect engagement dip → map it to a slide/topic → ask student why → generate AI support → show teacher aggregated insights → remember recurring patterns
+
+UI / UX
+
+A full modern UI pass has already been done:
+	•	premium dark/futuristic design
+	•	motion system across pages
+	•	animated charts
+	•	scroll-triggered section reveals
+	•	polished cards, layouts, and dashboards
+	•	stronger visual emphasis on teacher dashboard and memory page
+
+Mock/demo logic already built
+
+These MVP demo elements are already in place:
+	•	1 class session with 6 slides
+	•	clear engagement dip on slide 4
+	•	student reflection flow
+	•	teacher aggregated insight flow
+	•	recurring pattern memory from previous sessions
+	•	at-risk alert
+	•	privacy-first trust messaging
+	•	Solana / Presage / Backboard placeholders were already designed in concept
+
+Gemini integration — completed
+
+Gemini is now the first real integration that has been added.
+
+Gemini is being used for:
+	•	student recap generation
+	•	simpler explanation of the confusing topic
+	•	worked example generation
+	•	review question generation
+	•	teacher recommendation summary
+	•	aggregated reflection summary
+
+Gemini implementation status
+Already done:
+	•	server-side Gemini integration layer / API route
+	•	environment variable setup
+	•	Gemini connected into the most important student and teacher cards
+	•	loading states
+	•	error states
+	•	fallback behavior so demo still works if API fails
+	•	privacy-first structure so raw student media is not sent to Gemini, only structured insight/topic/reflection data
+
+⸻
+
+What still needs to be done
+
+1. Presage integration
+
+Next task is to add a real or semi-real Presage-aligned signal pipeline.
+
+Goal
+Replace some static engagement placeholder data with believable live/replayable engagement signal flow.
+
+What needs to be done
+	•	define a structured signal/event model
+	•	create a Presage adapter or event ingestion layer
+	•	connect signal output to:
+	•	teacher dashboard
+	•	session timeline
+	•	student timeline
+	•	make charts respond to actual event data
+	•	keep it limited to useful states like:
+	•	focused
+	•	confused
+	•	distracted
+	•	re-engaged
+
+Important
+Do not build creepy surveillance logic or too many labels.
+
+⸻
+
+2. Backboard integration
+
+After Presage, add the Backboard memory/orchestration layer.
+
+Goal
+Turn the memory page into a real persistent learning intelligence feature.
+
+What needs to be done
+Use Backboard for:
+	•	recurring confusion topics
+	•	recurring disengagement patterns
+	•	memory across 2–3 sessions
+	•	at-risk pattern retrieval
+	•	teacher recommendations informed by session history
+	•	student support informed by past weak spots
+
+Multi-agent structure expected
+	•	Engagement Agent
+	•	Content Agent
+	•	Reflection Agent
+	•	Intervention Agent
+	•	Student Support Agent
+	•	Memory Agent
+
+Must connect to:
+	•	Memory page
+	•	Teacher dashboard recommendation logic
+	•	Student pattern insight card
+	•	At-risk alert logic
+
+⸻
+
+3. Solana layer
+
+Do this last.
+
+Goal
+Add a lightweight trust/auditability layer.
+
+Solana should only be used for:
+	•	tamper-evident hashes
+	•	audit proof records
+	•	consent receipt proof concept
+	•	access verification records
+
+Solana should NOT be used for:
+	•	raw media storage
+	•	storing classroom video/photos on-chain
+	•	core app data
+
+Where it should show up
+	•	Privacy and Audit page
+	•	README / architecture summary
+	•	optional small trust panel or proof status card
+
+⸻
+
+4. Final polish after integrations
+
+Once the above is done:
+	•	unify all integration flows
+	•	check loading/fallback states
+	•	make sure UI still feels polished
+	•	confirm the story still stays:
+	•	privacy-first
+	•	learning support
+	•	teaching improvement
+	•	not surveillance
+
+⸻
+
+Current tech stack
+	•	Next.js App Router
+	•	TypeScript
+	•	Tailwind CSS
+	•	Recharts
+	•	Gemini API
+	•	planned: Presage
+	•	planned: Backboard
+	•	planned: Solana as audit layer only
+
+⸻
+
+Important product rules
+
+These should stay unchanged:
+	•	teachers should only see aggregated insights by default
+	•	teachers should not see raw student media
+	•	raw media should not be sent to Gemini
+	•	the app should be framed as learning support, not surveillance
+	•	any trust/privacy language must stay realistic
+	•	Solana must not be presented as “consent is unnecessary”
+
+⸻
+
+Recommended next order
+
+Best handoff order:
+	1.	Presage integration
+	2.	Backboard integration
+	3.	Solana audit layer
+	4.	final polish + README + demo prep
+
+⸻
+
+Demo story to preserve
+
+The demo is centered on:
+	•	slide 4 causes the biggest engagement drop
+	•	students report reasons like:
+	•	too fast
+	•	unclear explanation
+	•	Gemini generates:
+	•	recap
+	•	simpler explanation
+	•	worked example
+	•	review questions
+	•	teacher sees aggregated recommendation
+	•	memory page shows this is a recurring pattern across sessions

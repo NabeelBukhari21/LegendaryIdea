@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -51,7 +52,7 @@ export default function RecurringConfusionCard() {
                                                         <Badge variant={p.trend === "increasing" ? "danger" : p.trend === "stable" ? "warning" : "success"} size="sm">
                                                             {p.trend === "increasing" ? "↗ Worsening" : p.trend === "stable" ? "→ Stable" : "↘ Improving"}
                                                         </Badge>
-                                                        <span className="text-sm font-extrabold text-danger">-{p.avgEngagementDrop}%</span>
+                                                        <span className="text-sm font-extrabold text-danger">-{formatPercentValue(p.avgEngagementDrop)}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3 mb-2">

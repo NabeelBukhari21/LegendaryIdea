@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import {
@@ -36,7 +37,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
             <div className="glass-card p-3 text-xs border border-accent/20 max-w-[200px]">
                 <p className="text-foreground font-semibold mb-1">{d.fullLabel}</p>
                 <p className={`font-bold text-base ${d.isDip ? "text-danger" : d.engagement >= 80 ? "text-success" : "text-warning"}`}>
-                    {d.engagement}%
+                    {formatPercentValue(d.engagement)}
                 </p>
                 {d.isDip && <p className="text-danger/80 mt-1">⚠ Engagement breakdown point</p>}
             </div>
@@ -85,7 +86,7 @@ export default function SlideBySlideChart() {
                     {hasLive && lowestLive && lowestLive.engagement < 60 ? (
                         <Badge variant="danger">
                             <span className="w-2 h-2 rounded-full bg-danger animate-pulse-dot inline-block mr-1.5" />
-                            {lowestLive.slide}: {lowestLive.engagement}%
+                            {lowestLive.slide}: {formatPercentValue(lowestLive.engagement)}
                         </Badge>
                     ) : !hasLive ? (
                         <Badge variant="info">Waiting for Start</Badge>
@@ -99,7 +100,7 @@ export default function SlideBySlideChart() {
                         <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }} barSize={40}>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                             <XAxis dataKey="slide" stroke="#64748b" fontSize={12} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} />
-                            <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickFormatter={(v) => `${v}%`} />
+                            <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickFormatter={(v) => `${formatPercentValue(v)}`} />
                             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
                             <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="6 4" strokeOpacity={0.5} />
                             <Bar dataKey="engagement" radius={[8, 8, 2, 2]} animationDuration={1500} animationEasing="ease-out">

@@ -26,7 +26,8 @@ InsightBoard AI closes the feedback loop between student engagement and teaching
 |---|---|---|
 | **Gemini API** | Content Intelligence | AI recaps, simpler explanations, worked examples, quiz generation, teaching recommendations |
 | **MediaPipe** | Engagement Detection | On-device, privacy-first engagement sensing via Face Landmarker — outputs learning-relevant state labels (focused, confused, distracted, reengaged) without storing raw media |
-| **Backboard** | Multi-Agent Memory & Orchestration | Persistent cross-session intelligence — coordinates Engagement, Content, Reflection, Intervention, Student Support, and Memory sub-agents to identify recurring patterns |
+| **Backboard** | Long-Term Memory & Orchestration | **Fully Integrated API:** Uses the official Backboard SDK for robust state persistence. Employs a dual-assistant architecture (Session vs. Long-Term), dedicated Threads per student/teacher, Document Uploads for RAG, and JSON Tool Calls for fetching cross-session analytics. |
+| **React Three Fiber** | 3D Immersive Learning | Browser-based WebXR layer offering interactive 3D visualizations for complex architectural concepts (e.g., Backpropagation) without requiring a VR headset. |
 | **Solana** | Audit Verification | Tamper-evident hash proofs for data access, consent receipts, deletion confirmations (hashes only, no content on-chain) |
 
 ---
@@ -43,13 +44,13 @@ Session Engine (SessionEngineProvider)
     ↓ → Session Timeline (auto-built from live data)
 Gemini API
     ↓ personalized recap (student-private) + aggregated insights (teacher)
-Backboard Multi-Agent Architecture
-    ├─ Engagement Agent (interprets live signals)
-    ├─ Content Agent (tracks topic difficulty)
-    ├─ Reflection Agent (summarizes student self-reports)
-    ├─ Intervention Agent (generates contextual teacher advice)
-    ├─ Student Support Agent (generates historic student recovery plans)
-    └─ Memory Agent (stores/retrieves cross-session trends)
+Backboard Agent Architecture (Real API Integration)
+    ├─ Session Assistant (Fast analytics & slide document RAG grounding)
+    ├─ Long-Term Memory Assistant (Cross-session trend synthesis via Tool Calls)
+    ├─ Teacher Master Thread (Aggregated class trends)
+    └─ Student Personal Threads (Individual learning journeys)
+React Three Fiber (WebGL)
+    └─ Premium 3D Immersive Concept Hub for spatial explanations
 Solana
     ↓ audit proofs (SHA-256 hashes only)
 ```
@@ -141,7 +142,13 @@ The live demo (`/live-demo`) is the **central session engine** that drives the e
 - Cross-session trend charts
 - Class-wide and student-level pattern examples
 - Teaching format analysis
-- Multi-agent insight convergence (MediaPipe + Gemini + Backboard)
+- Active Backboard integration with Long-Term Memory Assistants and RAG document grounding
+
+### Immersive Learning 3D (`/student/immersive`)
+- Premium 3D WebGL Neural Network Hero scene
+- Full-screen "Concept Recovery" Hub with OrbitControls
+- 8-step interactive Backpropagation visualizer (Forward/Backward passes)
+- Contextual launch from Student Dashboard on weak topics
 
 ### Privacy & Audit (`/privacy`)
 - 6 privacy-by-design principles
@@ -185,6 +192,16 @@ npm install
 npm run dev
 ```
 
+### Environment Variables
+To enable live Backboard AI features, create an `.env.local` file and add your key:
+```bash
+BACKBOARD_API_KEY=your_key_here
+```
+If you run out of tokens or want to test without Backboard, temporarily set:
+```bash
+MOCK_BACKBOARD=true
+```
+
 Open [http://localhost:3000](http://localhost:3000)
 
 ### Build
@@ -202,8 +219,10 @@ npm run build
 | **Framework** | Next.js 16 (App Router) |
 | **Language** | TypeScript |
 | **Styling** | Tailwind CSS 4 |
+| **3D WebXR** | React Three Fiber, Three.js, Drei |
 | **Charts** | Recharts |
 | **Computer Vision** | MediaPipe Face Landmarker (WASM) |
+| **Orchestration** | Backboard SDK (Assistants, Threads, Memory, ToolCalls) |
 | **PPTX Parsing** | JSZip |
 | **State Management** | React Context + useSyncExternalStore |
 | **Design** | Glassmorphism, dark theme, custom animations |
@@ -217,8 +236,9 @@ npm run build
 | **MediaPipe Face Landmarker** | ✅ Real | Browser-based WASM. Runs on any device with a camera. No server needed. |
 | **Session Engine** | ✅ Real | Central state store with per-student, per-slide analytics, dip/recovery detection, timeline generation |
 | **Gemini API** | ✅ Real | Server-side integration (`/api/gemini`). Generates live recaps, explanations, recommendations |
-| **Frontend** | ✅ Real | Next.js 16, Tailwind CSS 4, Recharts. All UI, routing, animations |
-| **Backboard** | 🔶 Simulated | Multi-agent memory and coordination are mocked via `BackboardProvider` |
+| **Frontend UI** | ✅ Real | Next.js 16, Tailwind CSS 4, Recharts. All UI, routing, animations |
+| **3D Immersive Layer**| ✅ Real | React Three Fiber WebGL canvas rendering complex neural network concepts interactively |
+| **Backboard** | ✅ Real | Fully integrated Backboard Node SDK utilizing robust Assistants, Threads, ToolCalls, and Documents. Includes a secure server-side proxy system and graceful `MOCK_BACKBOARD` token-saving fallbacks. |
 | **Solana** | 🔶 Simulated | Audit proofs generated via `SolanaProvider` using real SHA-256 hashes locally |
 | **Student Data** | 🔶 Demo | All profiles, reflections, and class participation metrics are demo data (replaced by live session data when camera is active) |
 

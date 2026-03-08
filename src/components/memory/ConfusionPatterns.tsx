@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -37,7 +38,7 @@ export default function ConfusionPatterns() {
                         </div>
 
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="text-sm text-danger font-semibold">-{pattern.avgEngagementDrop}%</span>
+                            <span className="text-sm text-danger font-semibold">-{formatPercentValue(pattern.avgEngagementDrop)}</span>
                             <span className="text-xs text-muted">avg engagement drop</span>
                         </div>
 

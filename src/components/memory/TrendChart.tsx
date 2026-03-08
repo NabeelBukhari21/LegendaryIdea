@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import {
@@ -26,7 +27,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
                 <p className="text-foreground font-semibold mb-1">{label}</p>
                 {payload.map((entry, i) => (
                     <p key={i} style={{ color: entry.color }}>
-                        {entry.dataKey === "confusion" ? "Confusion" : "Engagement"}: {entry.value}%
+                        {entry.dataKey === "confusion" ? "Confusion" : "Engagement"}: {formatPercentValue(entry.value)}
                     </p>
                 ))}
             </div>
@@ -55,7 +56,7 @@ export default function TrendChart() {
                     <LineChart data={fallbackTrendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                         <XAxis dataKey="session" stroke="#64748b" fontSize={11} tickLine={false} />
-                        <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                        <YAxis domain={[0, 100]} stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `${formatPercentValue(v)}`} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend
                             iconType="circle"

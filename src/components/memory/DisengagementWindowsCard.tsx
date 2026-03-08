@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -33,7 +34,7 @@ export default function DisengagementWindowsCard() {
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm font-bold text-foreground">{dw.window}</span>
                                                 <Badge variant={dw.avgDrop >= 30 ? "danger" : dw.avgDrop >= 10 ? "warning" : "default"} size="sm">
-                                                    -{dw.avgDrop}% avg
+                                                    -{formatPercentValue(dw.avgDrop)} avg
                                                 </Badge>
                                             </div>
                                             <Badge size="sm">{dw.sessions.length} sessions</Badge>

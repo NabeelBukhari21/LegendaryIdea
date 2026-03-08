@@ -54,15 +54,17 @@ export default function SessionStoryCard() {
     return (
         <Reveal delay={0.3} duration={0.6}>
             <Card>
-                <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-xl bg-accent/15 ring-1 ring-accent/20 flex items-center justify-center text-lg">
-                        📖
+                <div className="flex justify-between items-start mb-5">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-accent/15 ring-1 ring-accent/20 flex items-center justify-center text-lg">
+                            📖
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-bold text-foreground">Session Story</h3>
+                            <p className="text-xs text-muted">The key moments at a glance</p>
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        <h3 className="font-bold text-foreground">Session Story</h3>
-                        <p className="text-xs text-muted">The key moments at a glance</p>
-                    </div>
-                    <Badge variant="default">5 key beats</Badge>
+                    <Badge variant="default">Powered by Gemini & MediaPipe</Badge>
                 </div>
 
                 <StaggerContainer delay={0.4}>

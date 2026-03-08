@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -62,7 +63,7 @@ export default function AtRiskAlert() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xl font-extrabold text-danger">{100 - profile.riskScore}%</p>
+                                            <p className="text-xl font-extrabold text-danger">{formatPercentValue(100 - profile.riskScore)}</p>
                                             <Badge variant="danger" size="sm">Extra Support</Badge>
                                         </div>
                                     </div>
@@ -92,7 +93,7 @@ export default function AtRiskAlert() {
                                     <div className="flex-1">
                                         <p className="text-sm font-medium text-foreground">{student.alias}</p>
                                     </div>
-                                    <span className="text-sm font-semibold text-warning">{student.avgEngagement}%</span>
+                                    <span className="text-sm font-semibold text-warning">{formatPercentValue(student.avgEngagement)}</span>
                                 </div>
                             ))}
                         </div>

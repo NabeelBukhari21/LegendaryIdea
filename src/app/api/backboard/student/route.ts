@@ -8,8 +8,15 @@ interface StudentDashboardResponse {
 export async function GET(req: Request) {
     try {
         const token = process.env.BACKBOARD_API_KEY;
-        if (!token) {
-            return NextResponse.json({ error: "Missing BACKBOARD_API_KEY" }, { status: 500 });
+        const useMock = process.env.MOCK_BACKBOARD === "true" || !token;
+
+        if (useMock) {
+            return NextResponse.json({
+                studentSupportAdvice: [
+                    { id: "adv-1", pattern: "Struggles with notation", advice: "Review the math symbols glossary before class", confidence: 92 },
+                    { id: "adv-2", pattern: "Loses focus after 20 mins", advice: "Take a 5 minute stretch break", confidence: 85 }
+                ]
+            });
         }
 
         const url = new URL(req.url);

@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React, { createContext, useContext, useCallback, useRef } from "react";
 import { useSyncExternalStore } from "react";
@@ -67,6 +68,14 @@ class SessionStore {
         };
         this.state = s;
         this.computePostSession();
+        this.notify();
+    };
+
+    setSessionTitle = (title: string) => {
+        this.state = {
+            ...this.state,
+            sessionTitle: title
+        };
         this.notify();
     };
 
@@ -221,7 +230,7 @@ class SessionStore {
                 type: "dip",
                 slideId,
                 label: "Engagement Dip",
-                detail: `Class dropped from ${this.prevClassAvg}% to ${newClassAvg}%`,
+                detail: `Class dropped from ${formatPercentValue(this.prevClassAvg)} to ${formatPercentValue(newClassAvg)}`,
                 severity: "warning",
             });
         }
@@ -396,6 +405,7 @@ interface SessionContextType {
     state: SessionState;
     startSession: (customSlides?: import("@/lib/session-engine").SlideDefinition[]) => void;
     stopSession: () => void;
+    setSessionTitle: (title: string) => void;
     setSlide: (index: number) => void;
     pushEvent: (event: StudentEvent) => void;
     getClassSummary: () => ClassSummary;
@@ -414,6 +424,7 @@ export function SessionEngineProvider({ children }: { children: React.ReactNode 
         state,
         startSession: store.startSession,
         stopSession: store.stopSession,
+        setSessionTitle: store.setSessionTitle,
         setSlide: store.setSlide,
         pushEvent: store.pushEvent,
         getClassSummary: store.getClassSummary,

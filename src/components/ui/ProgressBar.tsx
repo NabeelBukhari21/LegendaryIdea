@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 
@@ -35,7 +36,7 @@ export default function ProgressBar({
                 />
             </div>
             {showLabel && (
-                <span className="text-xs font-semibold text-muted min-w-[3ch]">{Math.round(pct)}%</span>
+                <span className="text-xs font-semibold text-muted min-w-[3ch]">{formatPercentValue(Math.round(pct))}</span>
             )}
         </div>
     );

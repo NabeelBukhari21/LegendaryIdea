@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import {
@@ -30,7 +31,7 @@ function TrendTooltip({ active, payload, label }: TrendTooltipProps) {
                 <p className="text-foreground font-semibold mb-1">{label}</p>
                 {payload.map((p, i) => (
                     <p key={i} style={{ color: p.color }} className="font-medium">
-                        {p.name}: {p.value}%
+                        {p.name}: {formatPercentValue(p.value)}
                     </p>
                 ))}
             </div>
@@ -73,7 +74,7 @@ export default function CrossSessionTrend() {
                                 <LineChart data={fallbackTrendData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                                     <XAxis dataKey="session" stroke="#64748b" fontSize={10} tickLine={false} />
-                                    <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                                    <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${formatPercentValue(v)}`} />
                                     <Tooltip content={<TrendTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)' }} />
                                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: "#64748b" }} />
                                     <Line type="monotone" dataKey="engagement" stroke="#6366f1" strokeWidth={2.5} dot={{ r: 4, fill: "#6366f1", stroke: "#0a0e1a", strokeWidth: 2 }} name="Engagement" animationDuration={1500} animationEasing="ease-out" />

@@ -9,8 +9,18 @@ interface MemoryInsightsResponse {
 export async function GET() {
     try {
         const token = process.env.BACKBOARD_API_KEY;
-        if (!token) {
-            return NextResponse.json({ error: "Missing BACKBOARD_API_KEY" }, { status: 500 });
+        const useMock = process.env.MOCK_BACKBOARD === "true" || !token;
+
+        if (useMock) {
+            return NextResponse.json({
+                crossSessionPatterns: [
+                    { patternId: "pat-1", topic: "Backpropagation Math", occurrences: 4, sessions: ["Session 1", "Session 2"], severity: "high", trend: "increasing", avgEngagementDrop: 15 },
+                    { patternId: "pat-2", topic: "Activation Functions", occurrences: 2, sessions: ["Session 1"], severity: "medium", trend: "stable", avgEngagementDrop: 8 }
+                ],
+                disengagementWindows: [
+                    { time: "Minute 15-20", occurrences: 3, primaryCause: "Heavy notation without visual anchor" }
+                ]
+            });
         }
 
         const masterThreadId = await getTeacherMasterThreadId();

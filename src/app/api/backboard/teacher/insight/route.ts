@@ -1,3 +1,4 @@
+import { formatPercentValue } from "@/lib/formatters";
 import { NextResponse } from 'next/server';
 import { getTeacherMasterThreadId, queryBackboardJSON } from '@/lib/backboard-service';
 import { z } from 'zod';
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
             Context:
             - Session: ${sessionTitle}
             - Slide Focus: ${slideTopic}
-            - Engagement Drop: ${dipPercentage}%
+            - Engagement Drop: ${formatPercentValue(dipPercentage)}
             - Student Reported Reasons: ${reasons.join(", ")}
 
             Generate a targeted learning breakdown and tactical recommendation for the teacher.

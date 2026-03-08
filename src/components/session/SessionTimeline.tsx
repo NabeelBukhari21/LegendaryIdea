@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Badge from "@/components/ui/Badge";
@@ -67,7 +68,7 @@ export default function SessionTimeline({ selectedSlide, onSelectSlide }: Props)
                 timeRange: `${i * 10}:00 – ${(i + 1) * 10}:00`,
                 status,
                 notes: slide.summary,
-                marker: isDip ? { type: "dip" as const, label: `Dip: ${eng}%` } : isPeak ? { type: "peak" as const, label: `Peak: ${eng}%` } : isRecovery ? { type: "recovery" as const, label: "Recovery" } : undefined,
+                marker: isDip ? { type: "dip" as const, label: `Dip: ${formatPercentValue(eng)}` } : isPeak ? { type: "peak" as const, label: `Peak: ${formatPercentValue(eng)}` } : isRecovery ? { type: "recovery" as const, label: "Recovery" } : undefined,
             } as unknown as EnrichedSlide;
         })
         : [];
@@ -138,7 +139,7 @@ export default function SessionTimeline({ selectedSlide, onSelectSlide }: Props)
                                                     }`} style={{ width: `${slide.engagement}%` }} />
                                             </div>
                                             <span className={`text-[10px] font-bold w-8 text-right ${slide.engagement >= 80 ? "text-success" : slide.engagement >= 60 ? "text-warning" : "text-danger"
-                                                }`}>{slide.engagement}%</span>
+                                                }`}>{formatPercentValue(slide.engagement)}</span>
                                         </div>
                                         <div className="flex items-center gap-1.5 flex-1">
                                             <span className="text-[10px] text-muted w-4 flex-shrink-0">C</span>
@@ -147,7 +148,7 @@ export default function SessionTimeline({ selectedSlide, onSelectSlide }: Props)
                                                     }`} style={{ width: `${slide.confusion}%` }} />
                                             </div>
                                             <span className={`text-[10px] font-bold w-8 text-right ${slide.confusion <= 15 ? "text-success" : slide.confusion <= 30 ? "text-warning" : "text-danger"
-                                                }`}>{slide.confusion}%</span>
+                                                }`}>{formatPercentValue(slide.confusion)}</span>
                                         </div>
                                     </div>
 

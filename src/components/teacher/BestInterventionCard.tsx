@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -56,7 +57,7 @@ export default function BestInterventionCard() {
                         <div className="flex items-center gap-2">
                             <Badge variant={typeInfo.badge}>{typeInfo.label}</Badge>
                             <Badge variant="success">
-                                {int.confidence}% match
+                                {formatPercentValue(int.confidence)} match
                             </Badge>
                         </div>
                     </div>
@@ -70,7 +71,7 @@ export default function BestInterventionCard() {
                             <div className="flex items-center gap-2">
                                 <span className="text-xs text-muted">Confidence</span>
                                 <ProgressBar value={int.confidence} size="sm" className="w-24" />
-                                <span className="text-xs font-semibold text-success">{int.confidence}%</span>
+                                <span className="text-xs font-semibold text-success">{formatPercentValue(int.confidence)}</span>
                             </div>
                             <div className="text-xs text-muted">
                                 ⏱ {int.estimatedTime}

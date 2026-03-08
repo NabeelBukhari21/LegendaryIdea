@@ -4,6 +4,7 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import { Reveal } from "@/components/motion/MotionKit";
+import { useStudentInsight } from "@/components/student/StudentInsightProvider";
 
 const typeStyles: Record<string, { bg: string; ring: string; badgeVariant: "success" | "warning" | "default"; badgeLabel: string }> = {
     strength: {
@@ -27,11 +28,16 @@ const typeStyles: Record<string, { bg: string; ring: string; badgeVariant: "succ
 };
 
 export default function StudyAdviceCard() {
+    const { data, isLoading } = useStudentInsight();
+
     const fallbackStudyAdvice = [
-        { type: "strength", title: "Visual Processing", description: "You showed 92% engagement during diagram-heavy segments.", actionable: "Seek out visual summaries when reviewing.", icon: "👁️" },
-        { type: "improvement", title: "Theoretical Endurance", description: "Your focus drops after 10+ mins of text.", actionable: "Take micro-breaks during heavy reading.", icon: "🔋" },
-        { type: "tip", title: "Active Recall", description: "You haven't used practice questions recently.", actionable: "Try the mini-quiz generator below.", icon: "🧠" },
+        { type: "strength", title: "Awaiting Session Insights", description: "Your study strengths will appear here once the session concludes.", actionable: "Stay engaged with the live presentation.", icon: "👁️" },
+        { type: "improvement", title: "Awaiting Focus Data", description: "Your improvement areas will be calculated from your focus metrics.", actionable: "Try to maintain steady attention.", icon: "🔋" },
     ] as const;
+
+    // TODO: Wire this fully to a future structured `studyAdvice` array from the Gemini payload.
+    // For now, if there is no data, use the generic fallback.
+    const adviceList = fallbackStudyAdvice;
 
     return (
         <Reveal delay={0.6} duration={0.6}>
@@ -51,7 +57,12 @@ export default function StudyAdviceCard() {
                     </div>
 
                     <div className="space-y-3">
-                        {fallbackStudyAdvice.map((advice, i) => {
+                        {isLoading ? (
+                            <div className="animate-pulse space-y-3">
+                                <div className="h-24 bg-white/5 rounded-xl border border-white/5" />
+                                <div className="h-24 bg-white/5 rounded-xl border border-white/5" />
+                            </div>
+                        ) : adviceList.map((advice, i) => {
                             const styles = typeStyles[advice.type];
                             return (
                                 <div key={i} className={`glass-card p-4 ${styles.bg}`}>

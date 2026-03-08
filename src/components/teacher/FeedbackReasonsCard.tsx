@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -49,7 +50,7 @@ export default function FeedbackReasonsCard() {
                                         </div>
                                         <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                                             <span className={`text-sm font-bold ${i === 0 ? "text-danger" : i === 1 ? "text-warning" : "text-muted"}`}>
-                                                {item.percentage}%
+                                                {formatPercentValue(item.percentage)}
                                             </span>
                                             <span className="text-xs text-muted">({item.count})</span>
                                         </div>

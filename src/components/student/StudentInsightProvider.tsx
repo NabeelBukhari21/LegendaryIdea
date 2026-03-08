@@ -19,18 +19,23 @@ interface GeminiInsightData {
 }
 
 interface StudentInsightContextType {
+    studentId: string;
     data: GeminiInsightData | null;
     isLoading: boolean;
     error: Error | null;
 }
 
 const StudentInsightContext = createContext<StudentInsightContextType>({
+    studentId: "s1",
     data: null,
     isLoading: false,
     error: null,
 });
 
-export function StudentInsightProvider({ children }: { children: React.ReactNode }) {
+import { useSession } from "@/components/session/SessionEngineProvider";
+
+export function StudentInsightProvider({ children, studentId }: { children: React.ReactNode, studentId: string }) {
+    const { state, getStudentSummary } = useSession();
     const [data, setData] = useState<GeminiInsightData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -39,16 +44,28 @@ export function StudentInsightProvider({ children }: { children: React.ReactNode
         let isMounted = true;
 
         async function fetchInsight() {
+            if (!state.isActive && state.slides.length === 0) return;
+
+            const summary = getStudentSummary(studentId);
+            const weakestSlideId = summary?.weakestSlide ?? state.slides[0]?.id;
+            const weakSlideDef = state.slides.find(s => s.id === weakestSlideId);
+            const topicName = weakSlideDef?.topic || "Core Concepts";
+
+            const generatedReasons = [];
+            if ((summary?.confusionCount ?? 0) > 2) generatedReasons.push("frequent confusion spikes");
+            if ((summary?.avgEngagement ?? 50) < 50) generatedReasons.push("overall low engagement");
+            if (generatedReasons.length === 0) generatedReasons.push("general review of complex topics needed");
+
             setIsLoading(true);
             try {
                 const response = await fetch("/api/backboard/student/insight", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        studentId: "s1",
-                        sessionTitle: "Session 5 — Neural Networks Deep Dive",
-                        slideTopic: "Backpropagation Math",
-                        reasons: ["too fast", "unclear explanation"]
+                        studentId: studentId,
+                        sessionTitle: state.sessionTitle || "Course Session",
+                        slideTopic: topicName,
+                        reasons: generatedReasons
                     })
                 });
 
@@ -83,10 +100,10 @@ export function StudentInsightProvider({ children }: { children: React.ReactNode
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [studentId, state.isActive, state.slides.length]);
 
     return (
-        <StudentInsightContext.Provider value={{ data, isLoading, error }}>
+        <StudentInsightContext.Provider value={{ studentId, data, isLoading, error }}>
             {children}
         </StudentInsightContext.Provider>
     );

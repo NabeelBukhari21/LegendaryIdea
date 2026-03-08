@@ -3,22 +3,26 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "@/components/session/SessionEngineProvider";
 import EngagementChart from "@/components/teacher/EngagementChart";
+import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
+import IntelligenceLogo from "@/components/ui/IntelligenceLogo";
 import { Reveal } from "@/components/motion/MotionKit";
-import { FaceAnalyzer, type TrackedFace } from "@/lib/face-analyzer";
+import { DemoJourneyBanner } from "@/components/ui/DemoJourneyBanner";
+import { formatPercentage, formatPercentValue, formatScore } from "@/lib/formatters";
 import { mapSignalsToEngagement, type EngagementState } from "@/lib/engagement-mapper";
 import type { StudentEvent, SlideDefinition } from "@/lib/session-engine";
 import { SESSION_SLIDES } from "@/lib/session-engine";
 import { parsePptx } from "@/lib/pptx-parser";
+import { FaceAnalyzer, type TrackedFace } from "@/lib/face-analyzer";
+
 
 const ANALYSIS_INTERVAL_MS = 200;
-const STATE_COLORS: Record<EngagementState, { bg: string; ring: string; text: string; glow: string; border: string }> = {
-    focused: { bg: "bg-emerald-500", ring: "ring-emerald-400/60", text: "text-emerald-400", glow: "shadow-emerald-500/30", border: "border-emerald-400" },
-    distracted: { bg: "bg-amber-500", ring: "ring-amber-400/60", text: "text-amber-400", glow: "shadow-amber-500/30", border: "border-amber-400" },
-    confused: { bg: "bg-rose-500", ring: "ring-rose-400/60", text: "text-rose-400", glow: "shadow-rose-500/30", border: "border-rose-400" },
-    reengaged: { bg: "bg-sky-500", ring: "ring-sky-400/60", text: "text-sky-400", glow: "shadow-sky-500/30", border: "border-sky-400" },
+const STATE_COLORS: Record<EngagementState, { bg: string; ring: string; text: string; glow: string; border: string; accent: string }> = {
+    focused: { bg: "bg-emerald-500", ring: "ring-emerald-500/40", text: "text-emerald-400", glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]", border: "border-emerald-500/80", accent: "emerald" },
+    distracted: { bg: "bg-amber-500", ring: "ring-amber-500/40", text: "text-amber-400", glow: "shadow-[0_0_30px_rgba(245,158,11,0.3)]", border: "border-amber-500/80", accent: "amber" },
+    confused: { bg: "bg-rose-500", ring: "ring-rose-500/40", text: "text-rose-400", glow: "shadow-[0_0_30px_rgba(225,29,72,0.3)]", border: "border-rose-500/80", accent: "rose" },
+    reengaged: { bg: "bg-sky-500", ring: "ring-sky-500/40", text: "text-sky-400", glow: "shadow-[0_0_30px_rgba(14,165,233,0.3)]", border: "border-sky-500/80", accent: "sky" },
 };
 
 interface StudentTrack {
@@ -84,6 +88,7 @@ export default function LiveDemoPage() {
             }
             setCustomSlides(slides);
             setPptFileName(file.name);
+            session.setSessionTitle(file.name.replace('.pptx', ''));
         } catch (err) {
             console.error("Error parsing PPTX:", err);
             alert("Could not parse the file. Please upload a valid .pptx file.");
@@ -94,6 +99,7 @@ export default function LiveDemoPage() {
     const clearPpt = () => {
         setCustomSlides(null);
         setPptFileName(null);
+        session.setSessionTitle("Neural Networks Deep Dive");
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -325,15 +331,96 @@ export default function LiveDemoPage() {
                             <video ref={videoRef} autoPlay playsInline muted className={`w-full h-full object-cover transform scale-x-[-1] ${stream ? "block" : "hidden"}`} />
 
                             {!stream && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="text-center p-8">
-                                        <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-2xl flex items-center justify-center text-3xl border border-white/10">
-                                            {modelLoading ? "⏳" : "📷"}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#010308] overflow-hidden">
+                                    {/* Deep Space Vignette */}
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#010308_85%)] z-10 pointer-events-none mix-blend-multiply" />
+
+                                    {/* Animated grid background */}
+                                    <div className="absolute inset-0 pointer-events-none opacity-[0.15]" style={{ backgroundImage: "linear-gradient(rgba(99,102,241,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.2) 1px, transparent 1px)", backgroundSize: "40px 40px", animation: "panGrid 20s linear infinite" }} />
+
+                                    {/* Complex Orbital HUD Rings */}
+                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] flex items-center justify-center pointer-events-none opacity-40 z-0">
+                                        <div className="absolute w-full h-full border border-accent/10 rounded-full" style={{ animation: 'spin 40s linear infinite' }}>
+                                            <div className="absolute top-0 left-1/2 w-2 h-2 bg-accent rounded-full shadow-[0_0_15px_#6366f1]" />
+                                            <div className="absolute bottom-0 left-1/2 w-1 h-8 bg-accent/50" />
                                         </div>
-                                        <p className="text-muted text-sm mb-1">{modelLoading ? "Loading MediaPipe Face Model..." : "Multi-student tracking ready"}</p>
-                                        {modelLoading && (
-                                            <div className="mt-3 w-48 mx-auto h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                                <div className="h-full bg-gradient-to-r from-accent via-purple-500 to-accent rounded-full" style={{ width: "70%", animation: "shimmer 1.5s ease-in-out infinite" }} />
+                                        <div className="absolute w-[75%] h-[75%] border-t border-b border-purple-500/30 rounded-full" style={{ animation: 'spin 20s linear infinite reverse' }} />
+                                        <div className="absolute w-[50%] h-[50%] border-4 border-dashed border-emerald-500/20 rounded-full" style={{ animation: 'spin 30s linear infinite' }} />
+
+                                        {/* Sniper Crosshairs */}
+                                        <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+                                        <div className="absolute h-full w-px bg-gradient-to-b from-transparent via-accent/20 to-transparent" />
+                                    </div>
+
+                                    {/* Left Telemetry Pillar */}
+                                    <div className="absolute left-6 top-10 bottom-10 w-48 hidden lg:flex flex-col justify-between opacity-70 z-20 pointer-events-none animate-fade-in-up">
+                                        <div className="space-y-3 font-mono text-[9px] text-accent tracking-widest uppercase">
+                                            <div className="flex justify-between items-center"><span className="animate-pulse">SYS.CORE</span><span className="text-white">ONLINE</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>LATENCY</span><span className="text-emerald-400">12ms</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>NODE</span><span>LOCAL:EDGE</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>FRAMES</span><span>60fps TARGET</span></div>
+                                            <div className="w-full h-px bg-gradient-to-r from-accent/50 to-transparent my-4" />
+                                            <div className="text-emerald-400 animate-pulse">AWAITING BIOMETRIC LINK...</div>
+                                        </div>
+                                        <div className="h-32 w-full border-l-2 border-accent/20 relative">
+                                            <div className="absolute -left-[2px] w-1 h-8 bg-accent rounded-full shadow-[0_0_10px_#6366f1]" style={{ animation: 'scan 2s ease-in-out infinite' }} />
+                                        </div>
+                                    </div>
+
+                                    {/* Right Telemetry Pillar */}
+                                    <div className="absolute right-6 top-10 bottom-10 w-48 hidden lg:flex flex-col justify-between opacity-70 z-20 pointer-events-none animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                                        <div className="h-32 w-full border-r-2 border-purple-500/20 relative flex justify-end">
+                                            <div className="absolute -right-[2px] w-1 h-12 bg-purple-500 rounded-full shadow-[0_0_10px_#a855f7]" style={{ animation: 'scan 3s ease-in-out infinite reverse' }} />
+                                        </div>
+                                        <div className="space-y-3 font-mono text-[9px] text-purple-400 tracking-widest uppercase text-right">
+                                            <div className="flex justify-between items-center text-muted"><span>VIS.MODEL</span><span className="text-white">MEDIAPIPE v3</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>MODE</span><span>MULTI-FACE</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>PRIVACY</span><span className="text-emerald-400">SECURE:E2E</span></div>
+                                            <div className="flex justify-between items-center text-muted"><span>MEMORY</span><span className="text-accent">BACKBOARD SDK</span></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Central glowing core */}
+                                    <div className="relative z-30 text-center p-8 backdrop-blur-xl rounded-3xl bg-black/60 border border-white/10 shadow-[0_0_120px_-20px_rgba(99,102,241,0.6)] min-w-[340px] mix-blend-screen overflow-hidden group">
+                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                                        <div className="relative w-28 h-28 mx-auto mb-8 flex items-center justify-center group pointer-events-none">
+                                            {modelLoading ? (
+                                                <>
+                                                    {/* Initializing State: Deep glow and fast mechanical spins */}
+                                                    <div className="absolute inset-0 rounded-full border border-white/5 bg-black/40 shadow-[inset_0_0_30px_rgba(168,85,247,0.1)]" />
+                                                    <div className="absolute inset-1 border-[1.5px] border-purple-500/10 border-r-purple-500 border-b-purple-500 rounded-full" style={{ animation: 'spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' }} />
+                                                    <div className="absolute inset-4 border-[1.5px] border-indigo-500/10 border-t-indigo-400 border-l-indigo-400 rounded-full" style={{ animation: 'spin 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse' }} />
+
+                                                    {/* Central initializing node */}
+                                                    <div className="absolute w-8 h-8 rounded-full bg-purple-500/20 shadow-[0_0_30px_rgba(168,85,247,0.6)] animate-pulse flex items-center justify-center">
+                                                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <IntelligenceLogo size={120} className="scale-110 drop-shadow-[0_0_25px_rgba(99,102,241,0.8)]" />
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                        <h2 className="text-xl font-bold text-white mb-2 tracking-widest uppercase filter drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                                            {modelLoading ? "Initializing Core" : "Vision System Ready"}
+                                        </h2>
+                                        <p className="text-accent text-xs mb-6 font-mono opacity-90 tracking-widest">
+                                            {modelLoading ? "> Loading MediaPipe neural network..." : "> Awaiting biometric streams..."}
+                                        </p>
+
+                                        {modelLoading ? (
+                                            <div className="mt-4 w-56 mx-auto h-1 bg-black/60 rounded-full overflow-hidden border border-white/10 relative">
+                                                <div className="absolute left-0 top-0 h-full bg-gradient-to-r from-transparent via-accent to-purple-500 rounded-full" style={{ width: "100%", animation: "shimmer 1.5s ease-in-out infinite" }} />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2.5 text-left bg-black/60 p-4 rounded-xl border border-white/10 font-mono text-[10px] text-muted shadow-inner relative overflow-hidden">
+                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-accent to-purple-500" />
+                                                <div className="flex items-center justify-between pl-2"><span className="text-accent">●</span> <span className="tracking-wide">Facial Landmarking</span> <span className="text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]">OK</span></div>
+                                                <div className="flex items-center justify-between pl-2"><span className="text-purple-400">●</span> <span className="tracking-wide">Expression Mapping</span> <span className="text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]">OK</span></div>
+                                                <div className="flex items-center justify-between pl-2"><span className="text-emerald-400">●</span> <span className="tracking-wide">Local Privacy Core</span> <span className="text-emerald-400 font-bold drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]">OK</span></div>
                                             </div>
                                         )}
                                     </div>
@@ -346,23 +433,81 @@ export default function LiveDemoPage() {
                                 const colors = STATE_COLORS[student.state];
                                 const sig = student.face.signals;
                                 return (
-                                    <div key={student.face.sessionId} className="absolute pointer-events-none transition-all duration-300 ease-out" style={{ right: `${bb.x * 100}%`, top: `${bb.y * 100}%`, width: `${bb.w * 100}%`, height: `${bb.h * 100}%` }}>
-                                        <div className={`absolute inset-0 rounded-2xl ring-2 ${colors.ring} transition-all duration-500`}>
-                                            <div className={`absolute -top-px -left-px w-4 h-4 border-t-2 border-l-2 rounded-tl-2xl ${colors.border} transition-colors duration-500`} />
-                                            <div className={`absolute -top-px -right-px w-4 h-4 border-t-2 border-r-2 rounded-tr-2xl ${colors.border} transition-colors duration-500`} />
-                                            <div className={`absolute -bottom-px -left-px w-4 h-4 border-b-2 border-l-2 rounded-bl-2xl ${colors.border} transition-colors duration-500`} />
-                                            <div className={`absolute -bottom-px -right-px w-4 h-4 border-b-2 border-r-2 rounded-br-2xl ${colors.border} transition-colors duration-500`} />
+                                    <div key={student.face.sessionId} className="absolute pointer-events-none transition-all duration-300 ease-out z-40 group" style={{ right: `${bb.x * 100}%`, top: `${bb.y * 100}%`, width: `${bb.w * 100}%`, height: `${bb.h * 100}%` }}>
+                                        {/* Holographic scanning background inside the box */}
+                                        <div className={`absolute inset-0 bg-gradient-to-b from-transparent via-${colors.accent}-500/5 to-${colors.accent}-500/10 opacity-30 shadow-[inset_0_0_50px_rgba(0,0,0,0.6)] rounded-2xl transition-all duration-500`} />
+
+                                        {/* Outer soft glow bracket */}
+                                        <div className={`absolute inset-0 rounded-2xl ring-1 ${colors.ring} ${colors.glow} transition-all duration-500 opacity-60`} />
+
+                                        {/* Precision corner brackets */}
+                                        <div className="absolute inset-0 rounded-2xl border-[0.5px] border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]">
+                                            <div className={`absolute -top-[2px] -left-[2px] w-6 h-6 border-t-[3px] border-l-[3px] rounded-tl-2xl ${colors.border} transition-colors duration-500 drop-shadow-[0_0_10px_currentColor]`} />
+                                            <div className={`absolute -top-[2px] -right-[2px] w-6 h-6 border-t-[3px] border-r-[3px] rounded-tr-2xl ${colors.border} transition-colors duration-500 drop-shadow-[0_0_10px_currentColor]`} />
+                                            <div className={`absolute -bottom-[2px] -left-[2px] w-6 h-6 border-b-[3px] border-l-[3px] rounded-bl-2xl ${colors.border} transition-colors duration-500 drop-shadow-[0_0_10px_currentColor]`} />
+                                            <div className={`absolute -bottom-[2px] -right-[2px] w-6 h-6 border-b-[3px] border-r-[3px] rounded-br-2xl ${colors.border} transition-colors duration-500 drop-shadow-[0_0_10px_currentColor]`} />
                                         </div>
-                                        <div className={`absolute -top-9 left-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-sm border border-white/10 shadow-lg ${colors.glow}`}>
-                                            <div className={`w-1.5 h-1.5 rounded-full ${colors.bg} animate-pulse`} />
-                                            <span className="text-[10px] font-bold text-white tracking-wide">{student.face.label}</span>
-                                            <span className={`text-[10px] font-semibold ${colors.text}`}>{student.score}%</span>
+
+                                        {/* Flagship Top HUD Score Chip */}
+                                        <div className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-stretch overflow-hidden rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-500 min-w-[140px]">
+                                            <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 border-r border-white/10 relative overflow-hidden">
+                                                <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.bg}`} />
+                                                <div className="relative flex items-center justify-center">
+                                                    <div className={`absolute inset-0 ${colors.bg} rounded-full animate-ping opacity-60`} />
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${colors.bg} shadow-[0_0_8px_currentColor]`} style={{ color: colors.border.replace('border-', '') }} />
+                                                </div>
+                                                <span className="text-[10px] font-bold text-white tracking-widest uppercase ml-1 opacity-90">{student.face.label}</span>
+                                            </div>
+                                            <div className={`flex-1 flex items-center gap-2 px-3 py-1.5 ${colors.glow.replace('shadow-', 'bg-').replace('/30', '/10')}`}>
+                                                <div className="flex items-end gap-0.5 ml-auto">
+                                                    <span className={`text-xs font-bold font-mono tracking-wider ${colors.text} drop-shadow-[0_0_8px_currentColor]`}>{formatPercentValue(student.score)}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm border border-white/10 ${colors.glow} whitespace-nowrap`}>
-                                            <span className={`text-[9px] font-bold uppercase tracking-widest ${colors.text}`}>{student.state}</span>
-                                            {sig.mouthActivity > 0.3 && <span className="text-[8px] px-1 rounded bg-purple-500/20 text-purple-300">🗣</span>}
-                                            {sig.headDown && <span className="text-[8px] px-1 rounded bg-amber-500/20 text-amber-300">↓</span>}
-                                            {sig.possibleDrowsiness && <span className="text-[8px] px-1 rounded bg-red-500/20 text-red-300">😴</span>}
+
+                                        {/* Flagship Bottom HUD: Stronger State Badge & Micro-Signals */}
+                                        <div className="absolute -bottom-14 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-500">
+                                            {/* Primary State Plate */}
+                                            <div className={`px-4 py-1.5 rounded-full bg-[#0a0f18]/90 backdrop-blur-2xl border-[1.5px] border-${colors.accent}-500/40 shadow-[0_0_25px_rgba(0,0,0,0.8),inset_0_0_15px_rgba(255,255,255,0.05)] relative overflow-hidden group-hover:border-${colors.accent}-400/80 transition-all`}>
+                                                <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${colors.accent}-400/20 to-transparent animate-[shimmer_2s_infinite]`} />
+                                                <span className={`text-[11px] font-black tracking-[0.2em] uppercase ${colors.text} drop-shadow-[0_0_8px_currentColor] relative z-10`}>
+                                                    {student.state}
+                                                </span>
+                                            </div>
+
+                                            {/* Micro-signals Stack */}
+                                            {(sig.mouthActivity > 0.3 || sig.headDown || sig.possibleDrowsiness) && (
+                                                <div className="flex gap-1.5">
+                                                    {sig.mouthActivity > 0.3 && (
+                                                        <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0a0f18]/90 text-purple-300 border border-purple-500/30 font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" /> SPEAKING
+                                                        </span>
+                                                    )}
+                                                    {sig.headDown && (
+                                                        <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0a0f18]/90 text-amber-300 border border-amber-500/30 font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md">
+                                                            <div className="w-1.5 h-1.5 rotate-45 bg-amber-400 animate-pulse" /> HEAD DOWN
+                                                        </span>
+                                                    )}
+                                                    {sig.possibleDrowsiness && (
+                                                        <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0a0f18]/90 text-red-300 border border-red-500/30 font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md">
+                                                            <div className="w-1 h-1.5 bg-red-400 animate-pulse" /> DROWSY
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* High-End Tech Telemetry Bar */}
+                                        <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-1.5 h-[60%] bg-[#0a0f18]/80 backdrop-blur-sm rounded-full border border-white/5 shadow-2xl overflow-hidden flex flex-col justify-end">
+                                            {/* The progress fill */}
+                                            <div className={`w-full transition-all duration-500 ease-out relative ${colors.bg}`} style={{ height: `${student.score}%` }}>
+                                                {/* Hot glowing tip */}
+                                                <div className="absolute top-0 left-0 right-0 h-1 bg-white rounded-full shadow-[0_0_10px_white]" />
+                                                {/* Scan pulse inside the bar */}
+                                                <div className="absolute inset-x-0 h-4 bg-white/30" style={{ animation: 'scan 2s ease-in-out infinite' }} />
+                                            </div>
+                                            {/* Segmented notches overlay */}
+                                            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjYiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC40KSIvPjwvc3ZnPg==')] pointer-events-none mix-blend-overlay" />
                                         </div>
                                     </div>
                                 );
@@ -376,19 +521,52 @@ export default function LiveDemoPage() {
                             )}
                         </div>
 
-                        <div className="px-4 py-3 bg-black/40 backdrop-blur border-t border-white/5 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                        <div className="px-6 py-4 bg-black/60 backdrop-blur-xl border-t border-white/10 flex items-center justify-between relative overflow-hidden">
+                            {/* Animated bottom beam */}
+                            {session.state.isActive && <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400 w-full animate-beam" />}
+
+                            <div className="flex items-center gap-4 relative z-10 w-full">
                                 {!stream ? (
-                                    <Button onClick={startCamera} variant="primary" size="sm" disabled={modelLoading || isSubmitting}>
-                                        {modelLoading ? "Loading Model..." : isSubmitting ? "Saving to Backboard..." : "▶ Start Live Session"}
-                                    </Button>
+                                    <button
+                                        onClick={startCamera}
+                                        disabled={modelLoading || isSubmitting}
+                                        className="relative group overflow-hidden rounded-xl px-8 py-3 bg-gradient-to-r from-accent to-purple-600 hover:from-accent hover:to-purple-500 text-white font-bold transition-all shadow-[0_0_40px_-10px_rgba(99,102,241,0.6)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
+                                    >
+                                        <div className="absolute inset-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <span className="relative flex items-center gap-2">
+                                            {modelLoading ? (
+                                                <><div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" /> System Booting...</>
+                                            ) : isSubmitting ? (
+                                                <><div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" /> Compiling Data...</>
+                                            ) : (
+                                                <><span className="text-lg">⚡</span> Initialize Protocol</>
+                                            )}
+                                        </span>
+                                    </button>
                                 ) : (
-                                    <Button onClick={stopCamera} variant="danger" size="sm" disabled={isSubmitting}>
-                                        {isSubmitting ? "Saving to Backboard..." : "■ End Session & Save to Backboard"}
-                                    </Button>
+                                    <button
+                                        onClick={stopCamera}
+                                        disabled={isSubmitting}
+                                        className="relative group rounded-xl px-6 py-3 bg-danger/20 hover:bg-danger/30 border border-danger/50 text-danger-light font-bold transition-all flex items-center gap-2"
+                                    >
+                                        {isSubmitting ? (
+                                            <><div className="w-4 h-4 border-2 border-danger-light/50 border-t-danger-light rounded-full animate-spin" /> Saving Memory...</>
+                                        ) : (
+                                            <><span className="w-2 h-2 rounded-sm bg-danger animate-pulse" /> End Session</>
+                                        )}
+                                    </button>
                                 )}
+
+                                <div className="ml-auto flex items-center gap-3">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[10px] uppercase font-bold text-muted tracking-wider">Processing Node</span>
+                                        <span className="text-xs font-mono text-emerald-400">Local Browser E2E</span>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    </div>
+                                </div>
                             </div>
-                            <Badge variant="warning" size="sm">🔒 On-device only</Badge>
                         </div>
                     </Card>
 
@@ -425,7 +603,7 @@ export default function LiveDemoPage() {
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-muted text-center">Or use the default 6-slide Neural Networks deck</p>
+                                <p className="text-[10px] text-muted text-center">Or use the default fallback presentation</p>
                             </div>
                         ) : (
                             <div className="space-y-2">
@@ -439,7 +617,7 @@ export default function LiveDemoPage() {
                                 </div>
                                 {!session.state.isActive && (
                                     <button onClick={clearPpt} className="text-[10px] text-muted hover:text-foreground transition-colors underline">
-                                        Remove and use default deck
+                                        Remove custom deck
                                     </button>
                                 )}
                             </div>
@@ -518,7 +696,7 @@ export default function LiveDemoPage() {
                                             <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
                                                 <div className={`h-full rounded-full transition-all duration-500 ${avg > 70 ? "bg-emerald-500" : avg > 50 ? "bg-amber-500" : avg > 0 ? "bg-rose-500" : "bg-white/10"}`} style={{ width: `${Math.max(2, avg)}%` }} />
                                             </div>
-                                            <span className="text-[10px] font-mono text-muted w-8 text-right">{avg > 0 ? `${avg}%` : "—"}</span>
+                                            <span className="text-[10px] font-mono text-muted w-8 text-right">{avg > 0 ? `${formatPercentValue(avg)}` : "—"}</span>
                                             <span className="text-[9px] text-muted truncate max-w-20">{slide.topic}</span>
                                         </div>
                                     );
@@ -582,6 +760,8 @@ export default function LiveDemoPage() {
                 </div>
             </div>
 
+            <DemoJourneyBanner step={1} nextPath="/student" nextLabel="Student Insights" />
+
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
@@ -600,46 +780,53 @@ function StudentCard({ student }: { student: StudentTrack }) {
     const sig = student.face.signals;
 
     return (
-        <div className={`relative p-3 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-500 shadow-lg ${colors.glow}`}>
+        <div className={`relative p-3.5 rounded-xl bg-white/[0.03] border border-white/10 transition-all duration-500 shadow-lg ${colors.glow}`}>
             <div className={`absolute left-0 top-2 bottom-2 w-[3px] rounded-full ${colors.bg} transition-colors duration-500`} />
             <div className="pl-3 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-bold text-foreground">{student.face.label}</span>
-                        <span className={`text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${colors.bg}/20 ${colors.text}`}>{student.state}</span>
-                        {sig.mouthActivity > 0.3 && <span className="text-[9px] px-1 rounded bg-purple-500/20 text-purple-300" title="Mouth activity (heuristic)">🗣</span>}
-                        {sig.headDown && <span className="text-[9px] px-1 rounded bg-amber-500/20 text-amber-300" title="Head down (heuristic)">↓</span>}
-                        {sig.possibleDrowsiness && <span className="text-[9px] px-1 rounded bg-red-500/20 text-red-300" title="Possible drowsiness (heuristic)">😴</span>}
+                        <span className={`text-[9.5px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${colors.bg}/20 ${colors.text}`}>{student.state}</span>
                     </div>
-                    <div className="grid grid-cols-3 gap-x-3 gap-y-1">
-                        <MiniSignal label="Head" value={1 - Math.min(1, Math.abs(sig.headYaw) / 0.5)} color={colors.bg} />
-                        <MiniSignal label="Eyes" value={sig.eyeOpenness} color={colors.bg} />
-                        <MiniSignal label="Stability" value={sig.gazeStability} color={colors.bg} />
-                        <MiniSignal label="Movement" value={1 - sig.movementScore} color={colors.bg} />
-                        <MiniSignal label="Mouth" value={sig.mouthActivity} color="bg-purple-500" />
-                        <MiniSignal label="Pitch" value={Math.max(0, 1 - Math.abs(sig.headPitch) / 0.5)} color={colors.bg} />
+
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2 mt-2">
+                        {/* Direct Measurements */}
+                        <MiniSignal label="Gaze" title="Direct Measurement: Gaze Stability" value={sig.gazeStability} color={colors.bg} type="direct" />
+                        <MiniSignal label="Move" title="Direct Measurement: Movement Stability" value={1 - sig.movementScore} color={colors.bg} type="direct" />
+                        <MiniSignal label="Eyes" title="Direct Measurement: Eye Openness" value={sig.eyeOpenness} color={colors.bg} type="direct" />
+
+                        {/* Heuristic / Inferred */}
+                        <MiniSignal label="Pitch" title="Direct Measurement: Head Pitch" value={Math.max(0, 1 - Math.abs(sig.headPitch) / 0.5)} color={colors.bg} type="direct" />
+                        <MiniSignal label="Mouth" title="Heuristic Approximation: Mouth Activity / Talking" value={sig.mouthActivity} color="bg-purple-500" type="heuristic" />
+                        <MiniSignal label="Alert" title="Heuristic Approximation: Anti-Drowsiness" value={sig.possibleDrowsiness ? 0.2 : 0.9} color={sig.possibleDrowsiness ? "bg-red-500" : colors.bg} type="heuristic" />
                     </div>
                 </div>
-                <div className="text-right shrink-0">
-                    <div className={`text-2xl font-extrabold ${colors.text} transition-colors duration-500`}>{student.score}<span className="text-xs text-muted">%</span></div>
-                    <div className="flex items-end gap-[2px] h-4 mt-1 justify-end">
+                <div className="text-right shrink-0 flex flex-col items-end">
+                    <div className={`text-3xl font-extrabold tracking-tight ${colors.text} transition-colors duration-500`}>
+                        {formatScore(student.score / 100)}<span className="text-sm text-muted opacity-80">%</span>
+                    </div>
+                    <div className="flex items-end gap-[2px] h-5 mt-1.5 justify-end">
                         {student.scoreHistory.slice(-12).map((s, i) => (
-                            <div key={i} className={`w-[3px] rounded-full ${colors.bg}/60 transition-all duration-200`} style={{ height: `${Math.max(2, (s / 100) * 16)}px` }} />
+                            <div key={i} className={`w-1 rounded-full ${colors.bg}/60 transition-all duration-200`} style={{ height: `${Math.max(3, (s / 100) * 20)}px` }} />
                         ))}
                     </div>
-                    <p className="text-[9px] text-muted mt-0.5">conf {(student.confidence * 100).toFixed(0)}%</p>
+                    <p className="text-[10px] text-muted mt-1.5">conf {formatPercentage(student.confidence, true)}</p>
                 </div>
             </div>
         </div>
     );
 }
 
-function MiniSignal({ label, value, color }: { label: string; value: number; color: string }) {
+function MiniSignal({ label, title, value, color, type }: { label: string; title: string; value: number; color: string; type: "direct" | "heuristic" | "experimental" }) {
+    const typeIndicator = type === "direct" ? "✅" : type === "heuristic" ? "🔧" : "🧪";
+
     return (
-        <div className="flex items-center gap-1">
-            <span className="text-[8px] text-muted w-10 shrink-0">{label}</span>
-            <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                <div className={`h-full ${color} rounded-full transition-all duration-300`} style={{ width: `${Math.max(3, value * 100)}%`, opacity: 0.7 }} />
+        <div className="flex items-center gap-1.5" title={title}>
+            <span className="text-[9px] text-muted w-[38px] shrink-0 font-medium tracking-wide flex items-center justify-between">
+                {label} <span className="text-[8px] opacity-70 ml-0.5">{typeIndicator}</span>
+            </span>
+            <div className="flex-1 h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                <div className={`h-full ${color} rounded-full transition-all duration-300`} style={{ width: `${Math.max(4, value * 100)}%`, opacity: 0.85 }} />
             </div>
         </div>
     );

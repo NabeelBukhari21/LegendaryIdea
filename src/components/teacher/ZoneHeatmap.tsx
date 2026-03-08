@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -72,14 +73,14 @@ export default function ZoneHeatmap() {
                                 <div key={ri} className="flex items-center gap-2">
                                     <span className="text-[10px] text-muted w-12 text-right flex-shrink-0">{rowLabels[ri]}</span>
                                     <div className="grid grid-cols-3 gap-2 flex-1">
-                                        {row.map((zone) => (
+                                        {row.map((zone, zi) => (
                                             <div
-                                                key={zone.zone}
+                                                key={`zone-${ri}-${zi}`}
                                                 className={`relative rounded-xl border bg-gradient-to-br ${getZoneColor(zone.engagement)} p-3 group hover:scale-[1.02] transition-all duration-300 cursor-default`}
                                             >
                                                 <div className="flex items-center justify-between mb-1">
                                                     <span className={`text-xl font-extrabold ${getTextColor(zone.engagement)}`}>
-                                                        {zone.engagement}%
+                                                        {formatPercentValue(zone.engagement)}
                                                     </span>
                                                     <span className={`text-xs ${zone.trend === "down" ? "text-rose-400" : zone.trend === "up" ? "text-emerald-400" : "text-muted"}`}>
                                                         {getTrendIcon(zone.trend)}
@@ -110,7 +111,7 @@ export default function ZoneHeatmap() {
                     {hasLive && (
                         <div className="mt-4 glass-card p-3 bg-rose-500/5 border-rose-500/10">
                             <p className="text-xs text-muted">
-                                <span className="font-semibold text-danger">Back rows averaged {Math.max(0, avgScore - 18)}% engagement</span> — significantly lower than front rows. Consider adding mid-lecture check-ins or moving to breakout groups to distribute engagement more evenly.
+                                <span className="font-semibold text-danger">Back rows averaged {formatPercentValue(Math.max(0, avgScore - 18))} engagement</span> — significantly lower than front rows. Consider adding mid-lecture check-ins or moving to breakout groups to distribute engagement more evenly.
                             </p>
                         </div>
                     )}

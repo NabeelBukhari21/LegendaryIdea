@@ -15,8 +15,8 @@ export default function MiniQuizCard() {
         {
             id: "waiting",
             question: "Waiting for session data to generate review questions.",
-            topic: "Review Topic",
-            options: ["Option A", "Option B", "Option C", "Option D"],
+            topic: "Review Generation Pending",
+            options: ["Awaiting Data"],
             correctIndex: 0,
             explanation: "Gemini will generate review questions here based on your comprehension gaps."
         }

@@ -1,0 +1,29 @@
+export const mockHistoryDeck = {
+    title: "History 101: The Roman Empire",
+    slides: [
+        {
+            id: 'slide-1',
+            title: 'Rise of Rome',
+            content: 'The Roman Empire was founded in 27 BC after the fall of the Roman Republic. Augustus became the first emperor.',
+            notes: 'Emphasize the transition from Republic to Empire.'
+        },
+        {
+            id: 'slide-2',
+            title: 'Military Expansion',
+            content: 'The Roman legions conquered vast territories across Europe, North Africa, and the Middle East, establishing the Pax Romana.',
+            notes: 'Mention the discipline and tactics of the legions.'
+        },
+        {
+            id: 'slide-3',
+            title: 'Engineering and Architecture',
+            content: 'Romans were master engineers, inventing concrete and building aqueducts, roads, and monumental structures like the Colosseum.',
+            notes: 'Show pictures of the aqueducts and explain their function.'
+        },
+        {
+            id: 'slide-4',
+            title: 'Fall of the Western Empire',
+            content: 'In 476 AD, the Western Roman Empire fell due to economic troubles, political instability, and barbarian invasions.',
+            notes: 'Discuss the splitting of the empire into East and West.'
+        }
+    ]
+};

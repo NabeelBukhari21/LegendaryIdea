@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -50,7 +51,7 @@ export default function StudentPatternExample() {
                                             <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
                                                 <div className="h-full rounded-full bg-danger/60" style={{ width: `${s.drop}%` }} />
                                             </div>
-                                            <span className="text-[10px] font-bold text-danger w-10 text-right">-{s.drop}%</span>
+                                            <span className="text-[10px] font-bold text-danger w-10 text-right">-{formatPercentValue(s.drop)}</span>
                                             {s.recovery && <span className="text-[10px] text-success">↗ recovered</span>}
                                         </div>
                                     </StaggerItem>

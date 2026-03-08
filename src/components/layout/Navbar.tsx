@@ -4,13 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import TrustBadge from "@/components/solana/TrustBadge";
+import { GlowingLogo } from "@/components/ui/GlowingLogo";
 
 const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/live-demo", label: "Live Demo" },
-    { href: "/teacher", label: "Teacher" },
-    { href: "/student", label: "Student" },
-    { href: "/session", label: "Session" },
+    { href: "/live-demo", label: "Start Demo" },
+    { href: "/student", label: "Student Insights" },
+    { href: "/teacher", label: "Teacher Insights" },
+    { href: "/session", label: "Session Replay" },
     { href: "/memory", label: "Memory" },
     { href: "/privacy", label: "Privacy" },
 ];
@@ -24,18 +25,8 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2.5 group">
-                        <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center border border-accent/30 group-hover:bg-accent/30 transition-all duration-300">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-light">
-                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                            </svg>
-                        </div>
-                        <span className="text-lg font-bold">
-                            <span className="text-foreground">Insight</span>
-                            <span className="gradient-text">Board</span>
-                            <span className="text-muted text-sm font-medium ml-1">AI</span>
-                        </span>
+                    <Link href="/" className="flex items-center group">
+                        <GlowingLogo showText={true} />
                     </Link>
 
                     {/* Desktop Nav Links */}

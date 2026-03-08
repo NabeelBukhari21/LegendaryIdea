@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -32,7 +33,7 @@ export default function SessionHistory() {
                                 <div className="text-right">
                                     <span className={`text-lg font-bold ${sess.avgEngagement >= 80 ? "text-success" : sess.avgEngagement >= 60 ? "text-warning" : "text-danger"
                                         }`}>
-                                        {sess.avgEngagement}%
+                                        {formatPercentValue(sess.avgEngagement)}
                                     </span>
                                 </div>
                             </div>

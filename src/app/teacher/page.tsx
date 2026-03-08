@@ -1,3 +1,5 @@
+"use client";
+
 import ClassOverview from "@/components/teacher/ClassOverview";
 import EngagementChart from "@/components/teacher/EngagementChart";
 import SlideBySlideChart from "@/components/teacher/SlideBySlideChart";
@@ -8,11 +10,15 @@ import ZoneHeatmap from "@/components/teacher/ZoneHeatmap";
 import PostSlide4Insight from "@/components/teacher/PostSlide4Insight";
 import TopWeakTopicCard from "@/components/teacher/TopWeakTopicCard";
 import BestInterventionCard from "@/components/teacher/BestInterventionCard";
+import { DemoJourneyBanner } from "@/components/ui/DemoJourneyBanner";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { TeacherInsightProvider } from "@/components/teacher/TeacherInsightProvider";
+import { useSession } from "@/components/session/SessionEngineProvider";
 
 export default function TeacherDashboard() {
+    const { state, getClassSummary } = useSession();
+    const summary = getClassSummary();
     return (
         <TeacherInsightProvider>
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -28,7 +34,7 @@ export default function TeacherDashboard() {
                             </Badge>
                         </div>
                         <p className="text-muted">
-                            Session 5 — Neural Networks Deep Dive · Mar 6, 2026 · 21 students
+                            {state.sessionTitle} &middot; {summary.studentCount} students
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -67,11 +73,11 @@ export default function TeacherDashboard() {
                     </div>
                 </div>
 
-                {/* ── Section 3: Slide 4 Deep Dive ───────── */}
+                {/* ── Section 3: Weakest Slide Deep Dive ───────── */}
                 <div className="mt-8">
                     <div className="flex items-center gap-2 mb-5">
                         <div className="w-1 h-6 rounded-full bg-danger" />
-                        <h2 className="text-xl font-bold text-foreground">Slide 4 Deep Dive</h2>
+                        <h2 className="text-xl font-bold text-foreground">Slide {summary.weakestSlide?.id ?? 4} Deep Dive</h2>
                         <Badge variant="danger" size="sm">Key Moment</Badge>
                     </div>
                     <div className="grid lg:grid-cols-2 gap-6">
@@ -128,6 +134,8 @@ export default function TeacherDashboard() {
                         </p>
                     </div>
                 </div>
+
+                <DemoJourneyBanner step={3} nextPath="/session" nextLabel="Timeline Replay" />
             </div>
         </TeacherInsightProvider>
     );

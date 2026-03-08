@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -99,7 +100,7 @@ export default function SlideDetailPanel({ selectedSlide }: Props) {
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-xs text-muted">Engagement</span>
                                     <span className={`text-lg font-extrabold ${slide.engagement >= 80 ? "text-success" : slide.engagement >= 60 ? "text-warning" : "text-danger"
-                                        }`}>{slide.engagement}%</span>
+                                        }`}>{formatPercentValue(slide.engagement)}</span>
                                 </div>
                                 <ProgressBar value={slide.engagement} size="sm" />
                             </div>
@@ -107,7 +108,7 @@ export default function SlideDetailPanel({ selectedSlide }: Props) {
                                 <div className="flex items-center justify-between mb-1.5">
                                     <span className="text-xs text-muted">Confusion</span>
                                     <span className={`text-lg font-extrabold ${slide.confusion <= 15 ? "text-success" : slide.confusion <= 30 ? "text-warning" : "text-danger"
-                                        }`}>{slide.confusion}%</span>
+                                        }`}>{formatPercentValue(slide.confusion)}</span>
                                 </div>
                                 <div className="h-2 rounded-full bg-white/5 overflow-hidden">
                                     <div className={`h-full rounded-full ${slide.confusion <= 15 ? "bg-success" : slide.confusion <= 30 ? "bg-warning" : "bg-danger"

@@ -9,8 +9,19 @@ interface TeacherDashboardResponse {
 export async function GET() {
     try {
         const token = process.env.BACKBOARD_API_KEY;
-        if (!token) {
-            return NextResponse.json({ error: "Missing BACKBOARD_API_KEY" }, { status: 500 });
+        const useMock = process.env.MOCK_BACKBOARD === "true" || !token;
+
+        if (useMock) {
+            return NextResponse.json({
+                atRiskProfiles: [
+                    { studentId: "s1", alias: "Jane D.", riskScore: 85, activeFlags: ["Missed 3 concepts", "Low engagement"], recommendedSupport: "Schedule 1:1 on Backpropagation" },
+                    { studentId: "s2", alias: "Mark T.", riskScore: 65, activeFlags: ["Dropped off early"], recommendedSupport: "Review early slides" }
+                ],
+                activeTeacherRecommendations: [
+                    "Slow down during mathematical notations",
+                    "Add more visual diagrams to Slide 4"
+                ]
+            });
         }
 
         const masterThreadId = await getTeacherMasterThreadId();

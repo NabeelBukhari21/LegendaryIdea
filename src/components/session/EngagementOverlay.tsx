@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import {
@@ -27,7 +28,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
             <div className="glass-card p-3 text-xs border border-accent/20">
                 <p className="text-foreground font-semibold">Slide {d.slide} · {d.time}</p>
                 <p className={`font-bold ${d.engagement < 60 ? "text-danger" : d.engagement < 80 ? "text-warning" : "text-success"}`}>
-                    {d.engagement}% engaged
+                    {formatPercentValue(d.engagement)} engaged
                 </p>
             </div>
         );
@@ -57,7 +58,7 @@ export default function EngagementOverlay() {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                         <XAxis dataKey="time" stroke="#64748b" fontSize={10} tickLine={false} interval={4} />
-                        <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                        <YAxis domain={[0, 100]} stroke="#64748b" fontSize={10} tickLine={false} tickFormatter={(v) => `${formatPercentValue(v)}`} />
                         <Tooltip content={<CustomTooltip />} />
                         <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="6 4" strokeOpacity={0.4} />
                         <ReferenceArea x1="30:00" x2="42:00" fill="#f43f5e" fillOpacity={0.06} stroke="#f43f5e" strokeOpacity={0.12} />

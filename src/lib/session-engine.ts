@@ -120,6 +120,7 @@ export interface RecoveryMoment {
 export interface SessionState {
     isActive: boolean;
     startTime: number;
+    sessionTitle: string;
     slides: SlideDefinition[];
     currentSlideIndex: number;
 
@@ -199,6 +200,7 @@ export function createInitialSessionState(): SessionState {
     return {
         isActive: false,
         startTime: 0,
+        sessionTitle: "Awaiting Session Data",
         slides: SESSION_SLIDES,
         currentSlideIndex: 0,
         students: new Map(),

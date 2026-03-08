@@ -4,6 +4,7 @@ import React from "react";
 import Card from "@/components/ui/Card";
 import { StaggerContainer, StaggerItem } from "@/components/motion/MotionKit";
 import { useSession } from "@/components/session/SessionEngineProvider";
+import { formatPercentValue } from "@/lib/formatters";
 
 export default function SessionSummaryBar() {
     const { state } = useSession();
@@ -29,8 +30,8 @@ export default function SessionSummaryBar() {
             if (a.avgEngagement < minAvg) { minAvg = a.avgEngagement; dipId = a.slideId; }
             if (a.avgEngagement > maxAvg) { maxAvg = a.avgEngagement; peakId = a.slideId; }
         });
-        dipSlideLabel = analytics.length > 0 ? `S${dipId}: ${minAvg}%` : "N/A";
-        peakSlideLabel = analytics.length > 0 ? `S${peakId}: ${maxAvg}%` : "N/A";
+        dipSlideLabel = analytics.length > 0 ? `S${dipId}: ${formatPercentValue(minAvg)}` : "N/A";
+        peakSlideLabel = analytics.length > 0 ? `S${peakId}: ${formatPercentValue(maxAvg)}` : "N/A";
     } else {
         avgEngagement = 0;
         avgConfusion = 0;
@@ -40,12 +41,12 @@ export default function SessionSummaryBar() {
     }
 
     const stats = [
-        { label: hasLive ? "Live Avg" : "Session Avg", value: `${avgEngagement}%`, color: "text-accent-light", icon: "📊" },
+        { label: hasLive ? "Live Avg" : "Session Avg", value: `${formatPercentValue(avgEngagement)}`, color: "text-accent-light", icon: "📊" },
         { label: "Duration", value: `${totalDuration} min`, color: "text-foreground", icon: "⏱️" },
         { label: "Slides", value: `${slideCount}`, color: "text-foreground", icon: "📄" },
         { label: "Biggest Dip", value: dipSlideLabel, color: "text-danger", icon: "📉" },
         { label: "Peak", value: peakSlideLabel, color: "text-success", icon: "📈" },
-        { label: "Confusion", value: hasLive ? `${state.confusionSpikes}` : `${avgConfusion}%`, color: avgConfusion > 25 || state.confusionSpikes > 3 ? "text-warning" : "text-success", icon: "🤔" },
+        { label: "Confusion", value: hasLive ? `${state.confusionSpikes}` : `${formatPercentValue(avgConfusion)}`, color: avgConfusion > 25 || state.confusionSpikes > 3 ? "text-warning" : "text-success", icon: "🤔" },
     ];
 
     return (

@@ -86,10 +86,26 @@ export class FaceAnalyzer {
      * Each face gets a stable session-based ID via position-matching.
      */
     processFrameMulti(video: HTMLVideoElement, timestampMs: number): TrackedFace[] {
-        if (!this.landmarker || !this.ready) return [];
+        if (!this.landmarker || !this.ready || video.videoWidth === 0 || video.videoHeight === 0) return [];
 
-        const results = this.landmarker.detectForVideo(video, timestampMs);
-        if (!results.faceLandmarks || results.faceLandmarks.length === 0) {
+        let results: any;
+        const originalConsoleError = console.error;
+        try {
+            // MediaPipe Wasm logs benign INFO messages to stderr, which Next.js catches as fatal React errors.
+            console.error = (...args: any[]) => {
+                const msg = args.map(String).join(" ");
+                if (msg.includes("XNNPACK delegate") || msg.includes("INFO:")) return;
+                originalConsoleError(...args);
+            };
+            results = this.landmarker.detectForVideo(video, timestampMs);
+        } catch (e) {
+            console.error = originalConsoleError;
+            throw e;
+        } finally {
+            console.error = originalConsoleError;
+        }
+
+        if (!results || !results.faceLandmarks || results.faceLandmarks.length === 0) {
             return [];
         }
 

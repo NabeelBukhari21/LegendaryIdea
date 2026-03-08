@@ -10,7 +10,7 @@ export default function PostSlide4Insight() {
     const { data, isLoading } = useTeacherInsight();
 
     const fallbackPostSlide4Shifts = [
-        { metric: "Engagement", before: 82, after: 44, unit: "%", trend: "negative" as "positive" | "negative" | "stable", interpretation: "Severe drop during theoretical explanation." },
+        { metric: "Engagement", before: 82, after: 44, unit: "%", trend: "negative" as "positive" | "negative" | "stable", interpretation: "Severe drop observed." },
         { metric: "Confusion", before: 15, after: 68, unit: "%", trend: "negative" as "positive" | "negative" | "stable", interpretation: "Significant spike in reported confusion." },
     ];
 
@@ -32,7 +32,7 @@ export default function PostSlide4Insight() {
                             </svg>
                         </div>
                         <div className="flex-1">
-                            <h3 className="font-bold text-foreground">What Changed After Slide 4</h3>
+                            <h3 className="font-bold text-foreground">What Changed After the Dip</h3>
                             <p className="text-xs text-muted">Before vs. during/after the engagement dip</p>
                         </div>
                         <Badge variant="warning">Impact Analysis</Badge>

@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -51,7 +52,7 @@ export default function RecommendationCard() {
                             <h3 className="font-bold text-foreground">AI Teaching Recommendation</h3>
                             <p className="text-xs text-muted">Generated from aggregated class data</p>
                         </div>
-                        {confidence > 0 && <Badge variant="success">{confidence}% confidence</Badge>}
+                        {confidence > 0 && <Badge variant="success">{formatPercentValue(confidence)} confidence</Badge>}
                     </div>
 
                     {isLoading || confidence === 0 ? (
@@ -70,7 +71,7 @@ export default function RecommendationCard() {
                                 <div className="flex items-center gap-3">
                                     <span className="text-xs text-muted">Confidence</span>
                                     <ProgressBar value={confidence} size="sm" className="flex-1 max-w-32" />
-                                    <span className="text-xs font-bold text-success">{confidence}%</span>
+                                    <span className="text-xs font-bold text-success">{formatPercentValue(confidence)}</span>
                                 </div>
                             </div>
 

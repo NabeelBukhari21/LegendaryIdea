@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -28,7 +29,7 @@ export default function PatternCard() {
                 <div className="glass-card p-4 bg-warning/5 border-warning/10 mb-4">
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold text-foreground">{topPattern.topic}</h4>
-                        <Badge variant="danger">-{topPattern.avgEngagementDrop}% avg drop</Badge>
+                        <Badge variant="danger">-{formatPercentValue(topPattern.avgEngagementDrop)} avg drop</Badge>
                     </div>
 
                     <p className="text-sm text-muted leading-relaxed mb-3">
@@ -43,7 +44,7 @@ export default function PatternCard() {
                             <div className="text-xs text-muted">Occurrences</div>
                         </div>
                         <div className="glass-card p-3 bg-white/[0.02]">
-                            <div className="text-lg font-bold text-warning">{topPattern.avgEngagementDrop}%</div>
+                            <div className="text-lg font-bold text-warning">{formatPercentValue(topPattern.avgEngagementDrop)}</div>
                             <div className="text-xs text-muted">Avg Drop</div>
                         </div>
                         <div className="glass-card p-3 bg-white/[0.02]">
@@ -53,9 +54,20 @@ export default function PatternCard() {
                     </div>
                 </div>
 
-                <div className="glass-card p-3 bg-success/5 border-success/10">
+                <div className="glass-card p-3 bg-success/5 border-success/10 mb-4">
                     <p className="text-xs font-semibold text-success mb-1">💡 Recommended Action</p>
-                    <p className="text-sm text-muted">{topPattern.suggestedAction}</p>
+                    <p className="text-sm text-foreground">{topPattern.suggestedAction}</p>
+                </div>
+
+                <div className="glass-card p-4 bg-accent/5 border-accent/15 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className="text-accent-light text-sm">🧠</span>
+                        <p className="text-[10px] font-bold text-accent-light uppercase tracking-widest">How Backboard Learned This</p>
+                    </div>
+                    <p className="text-xs text-muted leading-relaxed">
+                        The Backboard SDK retrieved <strong className="text-foreground">3 past session transcripts</strong> where the &quot;Chain Rule&quot; was taught.
+                        By analyzing the synchronized MediaPipe engagement arrays across these historical threads, Backboard&apos;s Memory engine identified a consistent <strong className="text-danger">-38% drop</strong> exactly when formal mathematical notation was introduced without prior visual scaffolding.
+                    </p>
                 </div>
             </div>
         </Card>

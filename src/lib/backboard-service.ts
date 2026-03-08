@@ -143,7 +143,7 @@ export async function getSessionThreadId(sessionId: string): Promise<string> {
  */
 export async function queryBackboardJSON<T>(threadId: string, query: string): Promise<T | null> {
     try {
-        let response = await backboardClient.addMessage(threadId, {
+        let response: any = await backboardClient.addMessage(threadId, {
             content: query + "\n\nRespond ONLY with valid JSON. Do not include markdown formatting.",
             stream: false
         });
@@ -163,7 +163,8 @@ export async function queryBackboardJSON<T>(threadId: string, query: string): Pr
                 };
             });
 
-            response = await backboardClient.submitToolOutputs(threadId, response.runId || "", toolOutputs, false);
+            const submitRes = await backboardClient.submitToolOutputs(threadId, response.runId || "", toolOutputs, false);
+            response = submitRes as any;
         }
 
         const content = response.content || "{}";

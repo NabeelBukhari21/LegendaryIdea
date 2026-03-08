@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import {
@@ -30,7 +31,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
                 {data.slide && <p className="text-foreground font-semibold">Slide {data.slide}</p>}
                 <p className="text-muted">{data.time}</p>
                 <p className={`font-bold ${data.engagement < 60 ? "text-danger" : data.engagement < 80 ? "text-warning" : "text-success"}`}>
-                    {data.engagement}% engaged
+                    {formatPercentValue(data.engagement)} engaged
                 </p>
             </div>
         );
@@ -83,7 +84,7 @@ export default function EngagementChart() {
                                 fontSize={11}
                                 tickLine={false}
                                 axisLine={{ stroke: "rgba(255,255,255,0.06)" }}
-                                tickFormatter={(v) => `${v}%`}
+                                tickFormatter={(v) => formatPercentValue(v)}
                             />
                             <Tooltip content={<CustomTooltip />} />
                             <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="6 4" strokeOpacity={0.5} />

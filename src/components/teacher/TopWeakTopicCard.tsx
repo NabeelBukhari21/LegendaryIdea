@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -57,11 +58,11 @@ export default function TopWeakTopicCard() {
                                 <div className="text-[10px] text-muted">Recurrences</div>
                             </div>
                             <div className="text-center glass-card p-2 bg-white/[0.02]">
-                                <div className="text-lg font-extrabold text-warning">-{topWeakTopic.avgDrop}%</div>
+                                <div className="text-lg font-extrabold text-warning">-{formatPercentValue(topWeakTopic.avgDrop)}</div>
                                 <div className="text-[10px] text-muted">Avg Drop</div>
                             </div>
                             <div className="text-center glass-card p-2 bg-white/[0.02]">
-                                <div className="text-lg font-extrabold text-accent-light">{topWeakTopic.affectedPercentage}%</div>
+                                <div className="text-lg font-extrabold text-accent-light">{formatPercentValue(topWeakTopic.affectedPercentage)}</div>
                                 <div className="text-[10px] text-muted">Students Affected</div>
                             </div>
                         </div>
@@ -80,7 +81,7 @@ export default function TopWeakTopicCard() {
                                             style={{ width: `${h.drop}%` }}
                                         />
                                     </div>
-                                    <span className="text-xs text-danger font-semibold w-10 text-right">-{h.drop}%</span>
+                                    <span className="text-xs text-danger font-semibold w-10 text-right">-{formatPercentValue(h.drop)}</span>
                                 </div>
                             ))}
                         </div>

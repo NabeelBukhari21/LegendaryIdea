@@ -30,7 +30,10 @@ const TeacherInsightContext = createContext<TeacherInsightContextType>({
     error: null,
 });
 
+import { useSession } from "@/components/session/SessionEngineProvider";
+
 export function TeacherInsightProvider({ children }: { children: React.ReactNode }) {
+    const { state, getClassSummary } = useSession();
     const [data, setData] = useState<GeminiTeacherInsightData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -39,16 +42,32 @@ export function TeacherInsightProvider({ children }: { children: React.ReactNode
         let isMounted = true;
 
         async function fetchInsight() {
+            if (!state.isActive && state.slides.length === 0) return;
+
+            const summary = getClassSummary();
+            const weakestSlideId = summary.weakestSlide?.id ?? state.slides[0]?.id;
+            const weakSlideDef = state.slides.find(s => s.id === weakestSlideId);
+            const topicName = weakSlideDef?.topic || "Core Concepts";
+
+            const generatedReasons = [];
+            if (summary.confusionSpikes > 2) generatedReasons.push("widespread confusion detected");
+            if (summary.headDownTotal > Math.max(1, summary.studentCount / 4)) generatedReasons.push("high distraction levels");
+            if (generatedReasons.length === 0) generatedReasons.push("general engagement drop-off");
+
+            const dipVal = summary.dipMoments.length > 0
+                ? Math.abs(summary.dipMoments[summary.dipMoments.length - 1].dropAmount)
+                : 35; // Default assumed dip if none formally logged
+
             setIsLoading(true);
             try {
                 const response = await fetch("/api/backboard/teacher/insight", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        sessionTitle: "Session 5 — Neural Networks Deep Dive",
-                        slideTopic: "Backpropagation Math",
-                        dipPercentage: 42,
-                        reasons: ["too fast", "unclear example"]
+                        sessionTitle: state.sessionTitle || "Course Session",
+                        slideTopic: topicName,
+                        dipPercentage: dipVal,
+                        reasons: generatedReasons
                     })
                 });
 
@@ -81,7 +100,7 @@ export function TeacherInsightProvider({ children }: { children: React.ReactNode
         return () => {
             isMounted = false;
         };
-    }, []);
+    }, [state.isActive, state.slides.length]);
 
     return (
         <TeacherInsightContext.Provider value={{ data, isLoading, error }}>

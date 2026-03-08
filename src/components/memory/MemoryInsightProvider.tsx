@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useBackboard } from "@/components/backboard/BackboardProvider";
@@ -46,52 +47,32 @@ export function MemoryInsightProvider({ children }: { children: React.ReactNode 
             return;
         }
 
-        async function fetchMemoryInsights() {
-            if (!crossSessionPatterns || crossSessionPatterns.length === 0) {
-                if (isMounted) {
-                    setData(defaultClassPattern);
-                    setIsLoading(false);
-                }
-                return;
+        if (!crossSessionPatterns || crossSessionPatterns.length === 0) {
+            if (isMounted) {
+                setData(defaultClassPattern);
+                setIsLoading(false);
             }
-
-            try {
-                const response = await fetch("/api/gemini", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        type: "memory-insight",
-                        payload: {
-                            sessionCount: 5, // Ideally track session count in global state, 5 is a placeholder for demo purposes
-                            recurringTopics: crossSessionPatterns.map((p) => p.topic)
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch memory insights");
-                }
-
-                const result = await response.json();
-                if (isMounted) {
-                    if (result.classPattern && result.recurringConfusion) {
-                        setData(result);
-                    } else {
-                        setData(defaultClassPattern);
-                    }
-                    setIsLoading(false);
-                }
-            } catch (err) {
-                console.error(err);
-                if (isMounted) {
-                    setData(defaultClassPattern);
-                    setError("Failed to generate AI insights.");
-                    setIsLoading(false);
-                }
-            }
+            return;
         }
 
-        fetchMemoryInsights();
+        // Map Backboard crossSessionPatterns directly into the UI schema
+        if (isMounted) {
+            const topPattern = crossSessionPatterns[0];
+            const mappedData: MemoryInsightData = {
+                classPattern: {
+                    quote: `Students repeatedly lose focus during ${topPattern?.topic || 'core concept'} explanations.`,
+                    detail: `Backboard Memory tracked a ${formatPercentValue((topPattern?.avgEngagementDrop || 0))} engagement drop ${topPattern?.occurrences || 1} times across recent sessions.`,
+                    actionable: `Break down ${topPattern?.topic || 'the topic'} with interactive visual scaffolding.`
+                },
+                recurringConfusion: crossSessionPatterns.map(p => ({
+                    topic: p.topic,
+                    suggestedAction: `Pre-teach ${p.topic} vocabulary`
+                }))
+            };
+
+            setData(mappedData);
+            setIsLoading(false);
+        }
 
         return () => {
             isMounted = false;

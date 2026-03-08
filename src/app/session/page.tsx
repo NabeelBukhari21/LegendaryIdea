@@ -8,9 +8,14 @@ import SessionSummaryBar from "@/components/session/SessionSummaryBar";
 import SessionStoryCard from "@/components/session/SessionStoryCard";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import { DemoJourneyBanner } from "@/components/ui/DemoJourneyBanner";
 import { TeacherInsightProvider } from "@/components/teacher/TeacherInsightProvider";
 
+import { useSession } from "@/components/session/SessionEngineProvider";
+
 export default function SessionPage() {
+    const { state, getClassSummary } = useSession();
+    const summary = getClassSummary();
     const [selectedSlide, setSelectedSlide] = useState(4);
 
     return (
@@ -29,7 +34,7 @@ export default function SessionPage() {
                             </Badge>
                         </div>
                         <p className="text-muted">
-                            Session 5 — Neural Networks Deep Dive · Mar 6, 2026 · 6 slides · 63 min
+                            {state.sessionTitle} &middot; {summary.totalEvents} events &middot; {summary.studentCount} students
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -92,6 +97,8 @@ export default function SessionPage() {
                         </p>
                     </div>
                 </div>
+
+                <DemoJourneyBanner step={4} nextPath="/memory" nextLabel="Memory Insights" />
             </div>
         </TeacherInsightProvider>
     );

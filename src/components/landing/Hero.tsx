@@ -4,31 +4,40 @@ import React from "react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { Reveal, StaggerContainer, StaggerItem, TextReveal, GlowPulse } from "@/components/motion/MotionKit";
+import NeuralNetworkHero from "@/components/3d/NeuralNetworkHero";
+
+import { GlowingLogo } from "@/components/ui/GlowingLogo";
 
 export default function Hero() {
     const steps = [
-        { step: "1", label: "Detect", desc: "Engagement dip spotted", icon: "📉", color: "bg-accent/20 text-accent-light ring-accent/20" },
-        { step: "2", label: "Map", desc: "Linked to Slide 4", icon: "📍", color: "bg-warning/20 text-warning ring-warning/20" },
-        { step: "3", label: "Reflect", desc: "Student says why", icon: "💭", color: "bg-blue-500/20 text-blue-400 ring-blue-500/20" },
-        { step: "4", label: "Recap", desc: "AI explains simpler", icon: "✨", color: "bg-success/20 text-success ring-success/20" },
-        { step: "5", label: "Improve", desc: "Teacher gets insights", icon: "🎯", color: "bg-accent/20 text-accent-light ring-accent/20" },
+        { step: "1", label: "Live Demo", desc: "Start browser sensing", icon: "📷", color: "bg-accent/20 text-accent-light ring-accent/20" },
+        { step: "2", label: "Student", desc: "Private reflection & 3D", icon: "🧑‍🎓", color: "bg-blue-500/20 text-blue-400 ring-blue-500/20" },
+        { step: "3", label: "Teacher", desc: "Class aggregation", icon: "🎓", color: "bg-warning/20 text-warning ring-warning/20" },
+        { step: "4", label: "Session", desc: "Replay the timeline", icon: "🎬", color: "bg-success/20 text-success ring-success/20" },
+        { step: "5", label: "Memory", desc: "Cross-session trends", icon: "🧠", color: "bg-purple-500/20 text-purple-400 ring-purple-500/20" },
     ];
 
     return (
-        <section className="relative pt-12 pb-16 overflow-hidden">
+        <section className="relative pt-12 pb-16 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+            {/* 3D Background */}
+            <NeuralNetworkHero />
+
             {/* Ambient blobs */}
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none z-10">
                 <div className="ambient-blob w-96 h-96 bg-accent/8 top-20 left-1/4" />
                 <div className="ambient-blob ambient-blob-2 w-80 h-80 bg-success/5 top-40 right-1/4" />
                 <div className="ambient-blob ambient-blob-3 w-[600px] h-40 bg-accent/3 bottom-0 left-1/2 -translate-x-1/2" />
             </div>
 
-            <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                {/* Badges */}
+            <div className="relative z-20 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center pt-10">
+                {/* Logo and Badges */}
                 <Reveal delay={0} duration={0.5}>
-                    <div className="flex items-center justify-center gap-2 mb-6">
-                        <Badge variant="default" size="md">🏆 Google Antigravity Hackathon</Badge>
-                        <Badge variant="success" size="md">Privacy-First</Badge>
+                    <div className="flex flex-col items-center justify-center gap-4 mb-6">
+                        <GlowingLogo variant="hero" />
+                        <div className="flex items-center gap-2 mt-4">
+                            <Badge variant="default" size="md">🏆 Google Antigravity Hackathon 2026</Badge>
+                            <Badge variant="success" size="md">Privacy-First</Badge>
+                        </div>
                     </div>
                 </Reveal>
 
@@ -46,24 +55,19 @@ export default function Hero() {
 
                 <Reveal delay={0.35} duration={0.5}>
                     <p className="text-lg sm:text-xl text-muted max-w-2xl mx-auto mb-8 leading-relaxed">
-                        InsightBoard AI spots when students disengage, asks them why, generates a personalized AI recap, and gives teachers aggregated insights to improve — all with privacy built in.
+                        InsightBoard AI is a privacy-first classroom copilot. It spots when students disengage via on-device vision, generates personalized Gemini support, and tracks long-term class memory with Backboard.
                     </p>
                 </Reveal>
 
-                {/* CTAs */}
+                {/* Primary CTA focused exclusively on the straight-line journey */}
                 <Reveal delay={0.5} duration={0.5} scale>
-                    <div className="flex items-center justify-center gap-4 mb-12">
+                    <div className="flex flex-col items-center justify-center gap-3 mb-12">
                         <GlowPulse>
-                            <Button href="/teacher" variant="primary" size="lg">
-                                🎓 Teacher Dashboard
+                            <Button href="/live-demo" variant="primary" size="lg" className="px-10 py-4 text-lg">
+                                ▶ Start Demo Journey
                             </Button>
                         </GlowPulse>
-                        <Button href="/student" variant="secondary" size="lg">
-                            🧑‍🎓 Student View
-                        </Button>
-                        <Button href="/session" variant="ghost" size="lg">
-                            📊 Live Session →
-                        </Button>
+                        <span className="text-sm text-muted font-medium">Follow the 5-step guided loop</span>
                     </div>
                 </Reveal>
 

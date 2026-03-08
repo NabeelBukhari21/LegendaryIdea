@@ -1,4 +1,5 @@
 "use client";
+import { formatPercentValue } from "@/lib/formatters";
 
 import React from "react";
 import Card from "@/components/ui/Card";
@@ -24,7 +25,7 @@ export default function SlideDetail() {
                 <p className="text-sm text-muted mb-2">{slide.topic}</p>
                 <div className="flex items-center gap-4 text-xs text-muted">
                     <span>{slide.duration} minutes</span>
-                    <span className="text-danger font-semibold">{slide.engagement}% engagement</span>
+                    <span className="text-danger font-semibold">{formatPercentValue(slide.engagement)} engagement</span>
                 </div>
                 <p className="text-xs text-muted mt-2 italic">{slide.notes}</p>
             </div>

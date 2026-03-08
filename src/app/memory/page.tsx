@@ -8,6 +8,7 @@ import ClassPatternCard from "@/components/memory/ClassPatternCard";
 import StudentPatternExample from "@/components/memory/StudentPatternExample";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { DemoJourneyBanner } from "@/components/ui/DemoJourneyBanner";
 import Card from "@/components/ui/Card";
 import { MemoryInsightProvider } from "@/components/memory/MemoryInsightProvider";
 
@@ -128,6 +129,8 @@ export default function MemoryPage() {
                         </p>
                     </div>
                 </div>
+
+                <DemoJourneyBanner step={5} nextPath="/privacy" nextLabel="Privacy Audit" isFinal={true} />
             </div>
         </MemoryInsightProvider>
     );

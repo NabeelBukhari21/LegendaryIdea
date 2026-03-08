@@ -1,3 +1,4 @@
+import { formatPercentValue } from "@/lib/formatters";
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -46,7 +47,7 @@ Respond ONLY with valid JSON. Do not include markdown blocks like \`\`\`json. Va
         if (type === "teacher-insight") {
             const prompt = `
 You are an AI teaching assistant analyzing class engagement data.
-During the session "${payload.sessionTitle}", specifically on the slide "${payload.slideTopic}", there was a significant engagement dip (${payload.dipPercentage}% drop).
+During the session "${payload.sessionTitle}", specifically on the slide "${payload.slideTopic}", there was a significant engagement dip (${formatPercentValue(payload.dipPercentage)} drop).
 Aggregated student feedback indicates the primary reasons for confusion were: ${payload.reasons.join(", ")}.
 
 Your goal is to provide a highly actionable, supportive JSON response with the following keys for the teacher:

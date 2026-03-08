@@ -1,3 +1,4 @@
+import { formatPercentValue } from "@/lib/formatters";
 import { type ClassValue, clsx } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
@@ -5,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatEngagement(value: number): string {
-    return `${value}%`;
+    return `${formatPercentValue(value)}`;
 }
 
 export function getEngagementColor(value: number): string {

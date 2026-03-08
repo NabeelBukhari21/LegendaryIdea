@@ -58,14 +58,17 @@ export function StudentInsightProvider({ children, studentId }: { children: Reac
 
             setIsLoading(true);
             try {
-                const response = await fetch("/api/backboard/student/insight", {
+                const response = await fetch("/api/gemini", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        studentId: studentId,
-                        sessionTitle: state.sessionTitle || "Course Session",
-                        slideTopic: topicName,
-                        reasons: generatedReasons
+                        type: "student-insight",
+                        payload: {
+                            studentId: studentId,
+                            sessionTitle: state.sessionTitle || "Course Session",
+                            slideTopic: topicName,
+                            reasons: generatedReasons
+                        }
                     })
                 });
 

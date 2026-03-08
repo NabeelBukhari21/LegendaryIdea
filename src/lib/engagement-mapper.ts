@@ -23,6 +23,8 @@ export interface FaceSignals {
     movementScore: number;      // 0-1, frame-to-frame jitter (1 = lots of movement)
     mouthActivity: number;      // 0-1, jaw open blendshape (heuristic: talking)
     headDown: boolean;          // headPitch < -0.3 (heuristic: looking down)
+    handRaised: boolean;
+    handConfidence: number;
     possibleDrowsiness: boolean; // eyes low + head down + low movement (heuristic)
 }
 
@@ -35,8 +37,10 @@ export interface EngagementEvent {
     gazeStabilityScore: number;     // 0-1
     eyeOpennessScore: number;       // 0-1
     movementScore: number;          // 0-1
-    mouthActivity: number;          // 0-1 (heuristic: talking)
-    headDown: boolean;              // heuristic: looking down
+    mouthActivity: number;              // 0-1 (heuristic: talking)
+    headDown: boolean;                  // heuristic: looking down
+    handRaised: boolean;
+    handConfidence: number;
     possibleDrowsiness: boolean;    // heuristic compound signal
     derivedState: EngagementState;
     confidence: number;             // 0-1
@@ -131,9 +135,12 @@ export function mapSignalsToEngagement(
         signals.gazeStability * 0.30 +                     // gaze stable
         (1 - signals.movementScore) * 0.15;                // not fidgeting
 
+    const finalScore = Math.round(60 + focusQuality * 38);
+    const handBoost = signals.handRaised ? 5 : 0;
+
     return {
         state: "focused",
         confidence: 0.65 + focusQuality * 0.30,
-        engagementScore: Math.round(60 + focusQuality * 38)
+        engagementScore: Math.min(100, finalScore + handBoost)
     };
 }

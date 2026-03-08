@@ -180,6 +180,8 @@ export default function LiveDemoPage() {
                     movementScore: face.signals.movementScore,
                     mouthActivity: face.signals.mouthActivity,
                     headDown: face.signals.headDown,
+                    handRaised: face.signals.handRaised,
+                    handConfidence: face.signals.handConfidence,
                     possibleDrowsiness: face.signals.possibleDrowsiness,
                 };
                 sess.pushEvent(studentEvent);
@@ -476,8 +478,13 @@ export default function LiveDemoPage() {
                                             </div>
 
                                             {/* Micro-signals Stack */}
-                                            {(sig.mouthActivity > 0.3 || sig.headDown || sig.possibleDrowsiness) && (
+                                            {(sig.mouthActivity > 0.3 || sig.headDown || sig.handRaised || sig.possibleDrowsiness) && (
                                                 <div className="flex gap-1.5">
+                                                    {sig.handRaised && (
+                                                        <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0a0f18]/90 text-emerald-300 border border-emerald-500/30 font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ✋ HAND RAISED
+                                                        </span>
+                                                    )}
                                                     {sig.mouthActivity > 0.3 && (
                                                         <span className="text-[9px] px-2 py-0.5 rounded-md bg-[#0a0f18]/90 text-purple-300 border border-purple-500/30 font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" /> SPEAKING
@@ -678,7 +685,8 @@ export default function LiveDemoPage() {
                     <div className="grid grid-cols-3 gap-3">
                         <Reveal delay={0.1}><Card className="text-center"><p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Students</p><p className="text-2xl font-extrabold text-foreground">{students.length}</p></Card></Reveal>
                         <Reveal delay={0.15}><Card className="text-center"><p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Avg</p><p className="text-2xl font-extrabold text-foreground">{classAvg}<span className="text-sm text-muted">%</span></p></Card></Reveal>
-                        <Reveal delay={0.2}><Card className="text-center"><p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Confusion</p><p className="text-2xl font-extrabold text-rose-400">{confusionSpikes}</p></Card></Reveal>
+                        <Reveal delay={0.2}><Card className="text-center"><p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Hand Raises</p><p className="text-2xl font-extrabold text-emerald-400">{session.state.handRaiseTotal}</p></Card></Reveal>
+                        <Reveal delay={0.25}><Card className="text-center"><p className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Confusion</p><p className="text-2xl font-extrabold text-rose-400">{confusionSpikes}</p></Card></Reveal>
                     </div>
 
                     {/* Per-Slide Analytics */}
@@ -798,6 +806,7 @@ function StudentCard({ student }: { student: StudentTrack }) {
                         {/* Heuristic / Inferred */}
                         <MiniSignal label="Pitch" title="Direct Measurement: Head Pitch" value={Math.max(0, 1 - Math.abs(sig.headPitch) / 0.5)} color={colors.bg} type="direct" />
                         <MiniSignal label="Mouth" title="Heuristic Approximation: Mouth Activity / Talking" value={sig.mouthActivity} color="bg-purple-500" type="heuristic" />
+                        <MiniSignal label="Hand" title="Direct Measurement: Hand Raised" value={sig.handRaised ? 1 : 0} color="bg-emerald-500" type="direct" />
                         <MiniSignal label="Alert" title="Heuristic Approximation: Anti-Drowsiness" value={sig.possibleDrowsiness ? 0.2 : 0.9} color={sig.possibleDrowsiness ? "bg-red-500" : colors.bg} type="heuristic" />
                     </div>
                 </div>

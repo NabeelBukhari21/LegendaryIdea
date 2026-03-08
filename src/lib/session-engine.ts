@@ -47,6 +47,8 @@ export interface StudentEvent {
     movementScore: number;
     mouthActivity: number;
     headDown: boolean;
+    handRaised: boolean;
+    handConfidence: number;
     possibleDrowsiness: boolean;
 }
 
@@ -62,9 +64,11 @@ export interface StudentSession {
     scoreHistory: number[];
     perSlideScores: Map<number, number[]>;    // slideId → score samples
     perSlideStates: Map<number, EngagementState[]>;
-    participationCount: number;               // mouth activity spikes
     confusionCount: number;
     headDownCount: number;
+    handRaiseCount: number;
+    handRaised: boolean;                      // tracks previous state for edge-triggering
+    participationCount: number;               // mouth activity or hand raise events
     lastSeen: number;
 }
 
@@ -76,6 +80,7 @@ export interface SlideAnalytics {
     confusionSpikes: number;
     participationCount: number;
     headDownCount: number;
+    handRaiseCount: number;
     eventCount: number;
     entryScore: number | null;
     exitScore: number | null;
@@ -90,7 +95,7 @@ export interface SlideAnalytics {
 export interface TimelineMarker {
     id: string;
     timestamp: number;
-    type: "slide_change" | "dip" | "recovery" | "confusion_spike" | "participation" | "head_down_cluster";
+    type: "slide_change" | "dip" | "recovery" | "confusion_spike" | "participation" | "head_down_cluster" | "hand_raise" | "possible_question";
     slideId: number;
     label: string;
     detail: string;
@@ -131,6 +136,7 @@ export interface SessionState {
     confusionSpikes: number;
     participationTotal: number;
     headDownTotal: number;
+    handRaiseTotal: number;
     totalEvents: number;
 
     eventLog: StudentEvent[];
@@ -151,6 +157,7 @@ export interface ClassSummary {
     confusionSpikes: number;
     participationTotal: number;
     headDownTotal: number;
+    handRaiseTotal: number;
     totalEvents: number;
     weakestSlide: SlideDefinition | null;
     strongestSlide: SlideDefinition | null;
@@ -170,6 +177,7 @@ export interface StudentSummary {
     strongestSlide: number | null;
     confusionCount: number;
     participationCount: number;
+    handRaiseCount: number;
     perSlideAvg: { slideId: number; avg: number; topic: string }[];
     scoreHistory: number[];
 }
@@ -183,6 +191,7 @@ export function createEmptySlideAnalytics(slideId: number): SlideAnalytics {
         confusionSpikes: 0,
         participationCount: 0,
         headDownCount: 0,
+        handRaiseCount: 0,
         eventCount: 0,
         entryScore: null,
         exitScore: null,
@@ -209,6 +218,7 @@ export function createInitialSessionState(): SessionState {
         confusionSpikes: 0,
         participationTotal: 0,
         headDownTotal: 0,
+        handRaiseTotal: 0,
         totalEvents: 0,
         eventLog: [],
         timelineMarkers: [],

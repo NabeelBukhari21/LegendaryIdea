@@ -165,6 +165,10 @@ class SessionStore {
         student.scoreHistory = [...student.scoreHistory.slice(-59), event.score];
         student.lastSeen = event.timestamp;
 
+        // Edge triggering for hand raises
+        const handRaisedNewly = event.handRaised && !student.handRaised;
+        student.handRaised = event.handRaised;
+
         // Per-slide scores
         const slideScores = student.perSlideScores.get(slideId) ? [...student.perSlideScores.get(slideId)!] : [];
         slideScores.push(event.score);
@@ -176,8 +180,9 @@ class SessionStore {
 
         // Count behaviors
         if (event.state === "confused") student.confusionCount++;
-        if (event.mouthActivity > 0.3) student.participationCount++;
+        if (event.mouthActivity > 0.3 || handRaisedNewly) student.participationCount++;
         if (event.headDown) student.headDownCount++;
+        if (handRaisedNewly) student.handRaiseCount++;
 
         // Update slide analytics (clone to make mutable)
         let analytics = s.slideAnalytics.get(slideId);
@@ -203,13 +208,49 @@ class SessionStore {
                 severity: "danger",
             });
         }
-        if (event.mouthActivity > 0.3) {
+        if (event.mouthActivity > 0.3 || handRaisedNewly) {
             analytics.participationCount++;
             s.participationTotal++;
         }
         if (event.headDown) {
             analytics.headDownCount++;
             s.headDownTotal++;
+        }
+        if (handRaisedNewly) {
+            analytics.handRaiseCount++;
+            s.handRaiseTotal++;
+
+            s.timelineMarkers.push({
+                id: `marker-hand-${Date.now()}`,
+                timestamp: event.timestamp,
+                type: "hand_raise",
+                slideId,
+                label: student.label,
+                detail: `Raised hand on "${slide.title}"`,
+                severity: "info",
+            });
+        }
+
+        // ── Possible Question Heuristic ──
+        if (event.handRaised && event.mouthActivity > 0.4) {
+            // Check if we already logged a question recently for this student
+            const recentQuestion = s.timelineMarkers.find(m =>
+                m.type === "possible_question" &&
+                m.label === student.label &&
+                (event.timestamp - m.timestamp < 10000)
+            );
+
+            if (!recentQuestion) {
+                s.timelineMarkers.push({
+                    id: `marker-question-${Date.now()}`,
+                    timestamp: event.timestamp,
+                    type: "possible_question",
+                    slideId,
+                    label: student.label,
+                    detail: `Possible question: hand raised + speaking`,
+                    severity: "success",
+                });
+            }
         }
 
         // Dip detection
@@ -310,6 +351,7 @@ class SessionStore {
             confusionSpikes: this.state.confusionSpikes,
             participationTotal: this.state.participationTotal,
             headDownTotal: this.state.headDownTotal,
+            handRaiseTotal: this.state.handRaiseTotal,
             totalEvents: this.state.totalEvents,
             weakestSlide: weakest !== null ? this.state.slides.find(s => s.id === weakest) ?? null : null,
             strongestSlide: strongest !== null ? this.state.slides.find(s => s.id === strongest) ?? null : null,
@@ -346,6 +388,7 @@ class SessionStore {
             strongestSlide: strongest,
             confusionCount: s.confusionCount,
             participationCount: s.participationCount,
+            handRaiseCount: s.handRaiseCount,
             perSlideAvg,
             scoreHistory: s.scoreHistory,
         };
@@ -367,6 +410,8 @@ class SessionStore {
             perSlideScores: new Map(),
             perSlideStates: new Map(),
             participationCount: 0,
+            handRaiseCount: 0,
+            handRaised: false,
             confusionCount: 0,
             headDownCount: 0,
             lastSeen: event.timestamp,

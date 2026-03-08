@@ -60,14 +60,17 @@ export function TeacherInsightProvider({ children }: { children: React.ReactNode
 
             setIsLoading(true);
             try {
-                const response = await fetch("/api/backboard/teacher/insight", {
+                const response = await fetch("/api/gemini", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        sessionTitle: state.sessionTitle || "Course Session",
-                        slideTopic: topicName,
-                        dipPercentage: dipVal,
-                        reasons: generatedReasons
+                        type: "teacher-insight",
+                        payload: {
+                            sessionTitle: state.sessionTitle || "Course Session",
+                            slideTopic: topicName,
+                            dipPercentage: dipVal,
+                            reasons: generatedReasons
+                        }
                     })
                 });
 

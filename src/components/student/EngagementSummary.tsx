@@ -81,19 +81,34 @@ export default function EngagementSummary() {
                         <h3 className="text-lg font-bold text-foreground">Your Engagement Journey</h3>
                         <p className="text-sm text-muted">Session 5 — How your focus flowed through the lecture</p>
                     </div>
-                    <div className="text-right">
-                        <div className="text-3xl font-extrabold gradient-text">
-                            <AnimatedCounter value={avgEngagement} />%
+                    <div className="text-right flex items-center gap-6">
+                        <div className="hidden sm:block">
+                            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-1 text-left">Participation</p>
+                            <div className="flex items-end gap-3 justify-start">
+                                <div>
+                                    <span className="text-xl font-black text-foreground">{sessionState.students.get(studentId)?.participationCount ?? (offset > 0 ? 12 : 4)}</span>
+                                    <span className="text-[10px] text-muted ml-1">events</span>
+                                </div>
+                                <div className="border-l border-white/10 pl-3">
+                                    <span className="text-xl font-black text-foreground">{sessionState.students.get(studentId)?.handRaiseCount ?? (offset > 0 ? 3 : 1)}</span>
+                                    <span className="text-[10px] text-muted ml-1">hand raises</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-xs text-muted flex items-center justify-end gap-1.5 mt-1 animate-fade-in-up">
-                            {hasLive ? (
-                                <>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
-                                    Live Average
-                                </>
-                            ) : (
-                                "Session Average"
-                            )}
+                        <div className="pl-6 border-l border-white/10">
+                            <div className="text-3xl font-extrabold gradient-text leading-tight">
+                                <AnimatedCounter value={avgEngagement} />%
+                            </div>
+                            <div className="text-xs text-muted flex items-center justify-end gap-1.5 mt-0.5 animate-fade-in-up">
+                                {hasLive ? (
+                                    <>
+                                        <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot" />
+                                        Live Average
+                                    </>
+                                ) : (
+                                    "Session Average"
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

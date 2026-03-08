@@ -10,11 +10,12 @@
  *          Face IDs are position-based session IDs, not biometric.
  */
 
-import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
+import { FaceLandmarker, HandLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 import type { FaceSignals } from "./engagement-mapper";
 
 const WASM_CDN = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm";
-const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task";
+const FACE_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task";
+const HAND_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task";
 
 const MAX_FACES = 5;
 const STABILITY_WINDOW = 12;
@@ -35,13 +36,15 @@ interface FaceTemporalState {
     movementHistory: number[];
     prevNoseTip: { x: number; y: number } | null;
     lastSeenMs: number;
+    handRaisedHistory: boolean[];
 }
 
 const LABELS = ["Learner A", "Learner B", "Learner C", "Learner D", "Learner E"];
 const IDS = ["student-A", "student-B", "student-C", "student-D", "student-E"];
 
 export class FaceAnalyzer {
-    private landmarker: FaceLandmarker | null = null;
+    private faceLandmarker: FaceLandmarker | null = null;
+    private handLandmarker: HandLandmarker | null = null;
     private loading = false;
     private ready = false;
 
@@ -49,6 +52,7 @@ export class FaceAnalyzer {
     private faceStates: Map<number, FaceTemporalState> = new Map();
     // Track which slot indices were used last frame for stable ID assignment
     private prevFacePositions: { x: number; y: number }[] = [];
+    private lastTimestamp = -1;
 
     async initialize(): Promise<void> {
         if (this.ready || this.loading) return;
@@ -57,15 +61,24 @@ export class FaceAnalyzer {
         try {
             const vision = await FilesetResolver.forVisionTasks(WASM_CDN);
 
-            this.landmarker = await FaceLandmarker.createFromOptions(vision, {
+            this.faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
                 baseOptions: {
-                    modelAssetPath: MODEL_URL,
+                    modelAssetPath: FACE_MODEL_URL,
                     delegate: "GPU"
                 },
                 runningMode: "VIDEO",
                 numFaces: MAX_FACES,
                 outputFaceBlendshapes: true,
                 outputFacialTransformationMatrixes: true,
+            });
+
+            this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: HAND_MODEL_URL,
+                    delegate: "GPU"
+                },
+                runningMode: "VIDEO",
+                numHands: 4,
             });
 
             this.ready = true;
@@ -86,26 +99,48 @@ export class FaceAnalyzer {
      * Each face gets a stable session-based ID via position-matching.
      */
     processFrameMulti(video: HTMLVideoElement, timestampMs: number): TrackedFace[] {
-        if (!this.landmarker || !this.ready || video.videoWidth === 0 || video.videoHeight === 0) return [];
+        if (!this.faceLandmarker || !this.handLandmarker || !this.ready || video.videoWidth === 0 || video.videoHeight === 0) return [];
 
-        let results: any;
+        // MediaPipe requires strictly increasing timestamps
+        if (timestampMs <= this.lastTimestamp) {
+            timestampMs = this.lastTimestamp + 0.001;
+        }
+        this.lastTimestamp = timestampMs;
+
+        let faceResults: any;
+        let handResults: any;
         const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        const originalConsoleLog = console.log;
+
         try {
-            // MediaPipe Wasm logs benign INFO messages to stderr, which Next.js catches as fatal React errors.
-            console.error = (...args: any[]) => {
+            // MediaPipe Wasm runtime logs "INFO" messages to the console which Next.js captures as fatal React errors.
+            // We suppress all console methods during the tight detection call and filter known benign strings.
+            const filter = (...args: any[]) => {
                 const msg = args.map(String).join(" ");
-                if (msg.includes("XNNPACK delegate") || msg.includes("INFO:")) return;
+                if (msg.includes("XNNPACK delegate") || msg.includes("INFO:") || msg.includes("TensorFlow Lite")) return;
                 originalConsoleError(...args);
             };
-            results = this.landmarker.detectForVideo(video, timestampMs);
+
+            console.error = filter;
+            console.warn = filter;
+            console.log = filter;
+
+            faceResults = this.faceLandmarker.detectForVideo(video, timestampMs);
+            handResults = this.handLandmarker.detectForVideo(video, timestampMs);
         } catch (e) {
+            // Restore immediately on error
             console.error = originalConsoleError;
+            console.warn = originalConsoleWarn;
+            console.log = originalConsoleLog;
             throw e;
         } finally {
             console.error = originalConsoleError;
+            console.warn = originalConsoleWarn;
+            console.log = originalConsoleLog;
         }
 
-        if (!results || !results.faceLandmarks || results.faceLandmarks.length === 0) {
+        if (!faceResults || !faceResults.faceLandmarks || faceResults.faceLandmarks.length === 0) {
             return [];
         }
 
@@ -114,10 +149,10 @@ export class FaceAnalyzer {
 
         // Match detected faces to stable slots using position proximity
         const usedSlots = new Set<number>();
-        const faceSlots: number[] = new Array(results.faceLandmarks.length).fill(-1);
+        const faceSlots: number[] = new Array(faceResults.faceLandmarks.length).fill(-1);
 
-        for (let i = 0; i < results.faceLandmarks.length; i++) {
-            const landmarks = results.faceLandmarks[i];
+        for (let i = 0; i < faceResults.faceLandmarks.length; i++) {
+            const landmarks = faceResults.faceLandmarks[i];
             const nose = landmarks[1];
             if (!nose) continue;
             currentPositions.push({ x: nose.x, y: nose.y });
@@ -151,13 +186,13 @@ export class FaceAnalyzer {
             faceSlots[i] = bestSlot;
         }
 
-        for (let i = 0; i < results.faceLandmarks.length; i++) {
+        for (let i = 0; i < faceResults.faceLandmarks.length; i++) {
             const slot = faceSlots[i];
             if (slot === -1) continue;
 
-            const landmarks = results.faceLandmarks[i];
-            const blendshapes = results.faceBlendshapes?.[i]?.categories || [];
-            const matrix = results.facialTransformationMatrixes?.[i]?.data;
+            const landmarks = faceResults.faceLandmarks[i];
+            const blendshapes = faceResults.faceBlendshapes?.[i]?.categories || [];
+            const matrix = faceResults.facialTransformationMatrixes?.[i]?.data;
 
             // Ensure temporal state exists for this slot
             if (!this.faceStates.has(slot)) {
@@ -167,6 +202,7 @@ export class FaceAnalyzer {
                     movementHistory: [],
                     prevNoseTip: null,
                     lastSeenMs: timestampMs,
+                    handRaisedHistory: [],
                 });
             }
             const temporal = this.faceStates.get(slot)!;
@@ -222,6 +258,39 @@ export class FaceAnalyzer {
             // ── Head-down detection (heuristic) ──
             const headDown = headPitch < -0.3;
 
+            // ── Hand-raise detection (heuristic) ──
+            let handRaised = false;
+            let handConfidence = 0;
+            const leftEye = landmarks[33];
+            const rightEye = landmarks[263];
+
+            if (nose && handResults && handResults.landmarks) {
+                for (let h = 0; h < handResults.landmarks.length; h++) {
+                    const handLandmarks = handResults.landmarks[h];
+                    // Hand is associated with this face if its average X is near the face X
+                    const handAvgX = handLandmarks.reduce((sum: number, lm: any) => sum + lm.x, 0) / handLandmarks.length;
+                    const handAvgY = handLandmarks.reduce((sum: number, lm: any) => sum + lm.y, 0) / handLandmarks.length;
+
+                    // X proximity check (within 0.25 normalized units)
+                    const xDist = Math.abs(handAvgX - nose.x);
+
+                    if (xDist < 0.25) {
+                        // Hand-raise heuristic: hand is above the nose level
+                        // Or even higher: 0.15 above nose tip
+                        if (handAvgY < nose.y - 0.1) {
+                            handRaised = true;
+                            handConfidence = handResults.worldLandmarks?.[h] ? 0.8 : 0.6;
+                        }
+                    }
+                }
+            }
+
+            temporal.handRaisedHistory.push(handRaised);
+            if (temporal.handRaisedHistory.length > STABILITY_WINDOW) temporal.handRaisedHistory.shift();
+            // Smoothed hand raised: true if raised in > 60% of window
+            const raisedCount = temporal.handRaisedHistory.filter(r => r).length;
+            const handRaisedSmoothed = raisedCount > (STABILITY_WINDOW * 0.6);
+
             // ── Possible drowsiness (compound heuristic) ──
             const possibleDrowsiness = eyeOpenness < 0.3 && headDown && movementScore < 0.15;
 
@@ -248,6 +317,8 @@ export class FaceAnalyzer {
                     movementScore,
                     mouthActivity,
                     headDown,
+                    handRaised: handRaisedSmoothed,
+                    handConfidence,
                     possibleDrowsiness,
                 },
                 noseTipX: nose?.x ?? 0.5,
@@ -274,9 +345,13 @@ export class FaceAnalyzer {
     }
 
     destroy(): void {
-        if (this.landmarker) {
-            this.landmarker.close();
-            this.landmarker = null;
+        if (this.faceLandmarker) {
+            this.faceLandmarker.close();
+            this.faceLandmarker = null;
+        }
+        if (this.handLandmarker) {
+            this.handLandmarker.close();
+            this.handLandmarker = null;
         }
         this.ready = false;
         this.faceStates.clear();

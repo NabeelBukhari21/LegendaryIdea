@@ -75,6 +75,24 @@ export default function ClassOverview() {
             ring: "ring-success/20",
         },
         {
+            label: "Participation",
+            value: <AnimatedCounter value={summary?.participationTotal ?? 0} duration={1.5} />,
+            detail: `${summary?.handRaiseTotal ?? 0} total hand raises detected`,
+            change: hasLiveData ? "Heuristic: Hand + Mouth" : "↑ 12% from last session",
+            changeColor: "text-emerald-400",
+            color: "text-emerald-400",
+            icon: (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" />
+                </svg>
+            ),
+            bg: "bg-emerald-500/15",
+            ring: "ring-emerald-500/20",
+        },
+        {
             label: "Active Students",
             value: <AnimatedCounter value={activeStudents} duration={1.5} />,
             detail: `${atRiskCount} may benefit from support`,
@@ -95,7 +113,7 @@ export default function ClassOverview() {
     ];
 
     return (
-        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" stagger={0.1}>
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4" stagger={0.1}>
             {stats.map((stat, i) => (
                 <StaggerItem key={i} className="h-full">
                     <Card className="relative overflow-hidden group h-full">
